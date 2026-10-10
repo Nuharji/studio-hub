@@ -36,7 +36,8 @@ const I18N = {
     confirmTitle: 'Uninstall', confirmMsg: 'Uninstall {name}? Your documents are not touched.', confirmOk: 'Uninstall', cancel: 'Cancel',
     language: 'Language', theme: 'Theme', sysLang: 'System language', themeDark: 'Dark', themeLight: 'Light', themeGithub: 'GitHub',
     themeGithubDark: 'GitHub Dark', about: 'About Studio Hub', aboutText: 'Studio Hub {v} — part of the Studio family.',
-    openFail: 'Could not start {name}: {e}', selfUpdate: 'Studio Hub {v} is available', selfHistory: 'What’s new'
+    openFail: 'Could not start {name}: {e}', selfUpdate: 'Studio Hub {v} is available', selfHistory: 'What’s new',
+    restartHub: 'Studio Hub {v} is installed — restart the Hub to use it.', noLibrary: 'no library folder'
   },
   de: {
     tagline: 'Studio-Apps installieren, aktualisieren und öffnen', library: 'Bibliothek', change: 'Ändern…', refresh: 'Erneut prüfen',
@@ -54,10 +55,11 @@ const I18N = {
     confirmTitle: 'Deinstallieren', confirmMsg: '{name} deinstallieren? Deine Dokumente bleiben erhalten.', confirmOk: 'Deinstallieren',
     cancel: 'Abbrechen', language: 'Sprache', theme: 'Design', sysLang: 'Systemsprache', themeDark: 'Dunkel', themeLight: 'Hell',
     themeGithub: 'GitHub', themeGithubDark: 'GitHub Dunkel', about: 'Über Studio Hub', aboutText: 'Studio Hub {v} – Teil der Studio-Familie.',
-    openFail: '{name} konnte nicht gestartet werden: {e}', selfUpdate: 'Studio Hub {v} ist verfügbar', selfHistory: 'Neuigkeiten'
+    openFail: '{name} konnte nicht gestartet werden: {e}', selfUpdate: 'Studio Hub {v} ist verfügbar', selfHistory: 'Neuigkeiten',
+    restartHub: 'Studio Hub {v} ist installiert – starte den Hub neu, um ihn zu verwenden.', noLibrary: 'kein Bibliotheksordner'
   }
 };
-let settings = {lang: 'auto', theme: 'dark', library: 'C:\\ai-stuff'}, lang = 'en', ownVersion = '';
+let settings = {lang: 'auto', theme: 'dark', library: 'C:\\ai-stuff'}, lang = 'en', ownVersion = '', platform = 'windows';
 try { Object.assign(settings, JSON.parse(localStorage.getItem(STORE)) || {}); } catch (e) {}
 const save = () => { try { localStorage.setItem(STORE, JSON.stringify(settings)); } catch (e) {} };
 function t(k, vars) {
@@ -91,7 +93,7 @@ async function scan() {
   const btn = $('#refreshBtn'); btn.classList.add('spin');
   try {
     if (invoke) {
-      const [pk, inst] = await Promise.all([invoke('scan_library', {dir: settings.library}), invoke('installed_apps'), fetchReleases()]);
+      const [pk, inst] = await Promise.all([settings.library ? invoke('scan_library', {dir: settings.library}) : [], invoke('installed_apps'), fetchReleases()]);
       packages = Object.fromEntries(pk.map(p => [p.product, p]));
       const names = new Set([...Object.keys(CATALOG), ...Object.keys(packages)]);
       installed = Object.fromEntries(inst.filter(i => names.has(i.product)).map(i => [i.product, i]));
@@ -148,7 +150,7 @@ function render() {
   document.documentElement.lang = lang;
   document.documentElement.dataset.theme = settings.theme;
   $('#tagline').textContent = t('tagline');
-  $('#libPath').textContent = settings.library; $('#lib').title = `${t('library')}: ${settings.library}`;
+  $('#libPath').textContent = settings.library || t('noLibrary'); $('#lib').title = `${t('library')}: ${settings.library || t('noLibrary')}`;
   $('#libBtn').textContent = t('change'); $('#refreshBtn').title = t('refresh'); $('#menuBtn').title = t('menu');
   $('#appsTitle').textContent = t('apps'); $('#soonTitle').textContent = t('soon');
   const names = [...new Set([...Object.keys(CATALOG), ...Object.keys(packages), ...Object.keys(installed)])].filter(n => n !== SELF);
@@ -191,7 +193,7 @@ async function doInstall(name, release = null) {
   try {
     const setup = b.source === 'github' ? await download(name, b.release.setup) : b.pkg.setup;
     busy[name].text = t(wasInstalled ? 'updating' : 'installing'); render();
-    await invoke('install', {setup});
+    await invoke('install', {setup, product: name, version: b.version});
     toast(wasInstalled ? t('updated', {name, v: b.version}) : t('done', {name, v: b.version}));
   } catch (e) { toast(t('failed', {name, e}), true); }
   delete busy[name]; await scan();
@@ -207,14 +209,20 @@ async function doPortable(name) {
     } else await start(name, b.pkg.portable);
   } catch (e) { delete busy[name]; render(); toast(t('failed', {name, e}), true); }
 }
-/* Updating the Hub itself: the installer has to replace this running program, so it runs visibly and the Hub closes. */
+/* Updating the Hub itself. Windows: the installer has to replace this running program, so it runs visibly
+   and the Hub closes. macOS/Linux: the new .app / AppImage is put in place; it takes effect on the next start. */
 async function selfUpdate() {
   const rel = (releases[SELF] || []).find(r => r.setup && !r.prerelease); if (!rel) return;
   try {
     busy[SELF] = {text: ''}; toast(t('downloading', {p: '…'}));
     const path = await download(SELF, rel.setup);
-    await invoke('launch', {path});
-    window.__TAURI__.window.getCurrentWindow().close();
+    if (platform === 'windows') {
+      await invoke('launch', {path});
+      window.__TAURI__.window.getCurrentWindow().close();
+    } else {
+      await invoke('install', {setup: path, product: SELF, version: rel.version});
+      toast(t('restartHub', {v: rel.version}));
+    }
   } catch (e) { toast(t('failed', {name: SELF, e}), true); }
   delete busy[SELF];
 }
@@ -344,7 +352,12 @@ window.addEventListener('focus', () => {
 
 (async () => {
   applyLang(); render();
-  if (invoke) ownVersion = await window.__TAURI__.app.getVersion().catch(() => '');
+  if (invoke) {
+    ownVersion = await window.__TAURI__.app.getVersion().catch(() => '');
+    platform = await invoke('platform').catch(() => 'windows');
+    // The local library is a Windows developer setup; elsewhere apps come from GitHub.
+    if (platform !== 'windows' && settings.library === 'C:\\ai-stuff') { settings.library = ''; save(); }
+  }
   lastFocusScan = Date.now(); scan();
 })();
 window.__hub = {scan, act, doInstall, state: () => ({packages, releases, githubErrors, installed, busy})};
