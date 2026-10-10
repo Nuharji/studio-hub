@@ -7,13 +7,13 @@ const STORE = 'studio-hub.v1';
 /* The family. `repo` is the GitHub repository (owner is set in the Rust backend).
    Apps found in the library that aren't listed here still show up, with a generic tile. */
 const CATALOG = {
-  'Markdown Studio': {code: 'Md', g: ['#378EF0', '#7B4DFF'], repo: 'markdown-studio',
+  'Markdown Studio': {code: 'Md', g: ['#1B2F6B', '#378EF0'], repo: 'markdown-studio',
     en: 'Markdown & LaTeX editor with live preview, diagrams and a full syntax guide.',
     de: 'Markdown- & LaTeX-Editor mit Live-Vorschau, Diagrammen und Syntax-Anleitung.'},
-  'PDF Studio': {code: 'Pd', g: ['#E5384F', '#FF6B5A'], repo: 'pdf-studio',
+  'PDF Studio': {code: 'Pd', g: ['#6B1420', '#F0485C'], repo: 'pdf-studio',
     en: 'View, search, annotate, reorder, merge and split PDF files.',
     de: 'PDFs ansehen, durchsuchen, kommentieren, sortieren, zusammenführen und teilen.'},
-  'Data Studio': {code: 'Dt', g: ['#12A06B', '#22B8B0'], repo: 'data-studio',
+  'Data Studio': {code: 'Dt', g: ['#0A4535', '#1FBF8F'], repo: 'data-studio',
     en: 'CSV, JSON and Excel: filter, sort, chart, edit and convert.',
     de: 'CSV, JSON und Excel: filtern, sortieren, Diagramme, bearbeiten und umwandeln.'}
 };

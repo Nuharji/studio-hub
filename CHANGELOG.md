@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.2.1 — 2026-10-10
+- The app tiles use the new Studio icon colors (dark-to-bright fade, like the Hub icon).
+
 ## 1.2.0 — 2026-10-10
 - Studio Hub now runs on macOS and Linux too: installs apps from GitHub (.dmg into Applications, AppImage with a menu entry), updates and uninstalls them.
 - The Hub can update itself on every platform.
