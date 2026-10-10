@@ -15,7 +15,10 @@ const CATALOG = {
     de: 'PDFs ansehen, durchsuchen, kommentieren, sortieren, zusammenführen und teilen.'},
   'Data Studio': {code: 'Dt', g: ['#0A4535', '#1FBF8F'], repo: 'data-studio',
     en: 'CSV, JSON and Excel: filter, sort, chart, edit and convert.',
-    de: 'CSV, JSON und Excel: filtern, sortieren, Diagramme, bearbeiten und umwandeln.'}
+    de: 'CSV, JSON und Excel: filtern, sortieren, Diagramme, bearbeiten und umwandeln.'},
+  'Code Studio': {code: 'Cd', g: ['#5A2A05', '#F58A1F'], repo: 'code-studio',
+    en: 'IDE in the JetBrains style: projects, Search Everywhere, find in files, terminal, local history.',
+    de: 'IDE im JetBrains-Stil: Projekte, Überall suchen, In Dateien suchen, Terminal, lokaler Verlauf.'}
 };
 const SOON = [];   // apps in development, e.g. {name, code, g: [from, to], en, de}
 const SELF = 'Studio Hub';

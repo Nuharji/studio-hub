@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.2.2 — 2026-10-10
+- New app in the list: Code Studio, the IDE of the Studio family.
+
 ## 1.2.1 — 2026-10-10
 - The app tiles use the new Studio icon colors (dark-to-bright fade, like the Hub icon).
 
