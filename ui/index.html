@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Studio Hub</title>
+<style>
+/* ===== Studio family themes; Hub accent = #6366F1 ===== */
+:root,[data-theme="dark"]{
+  --font-ui:"Segoe UI",system-ui,-apple-system,sans-serif;
+  --bg:#1b1b1b;--chrome:#2b2b2b;--panel:#242424;--line:#111;--border:#3c3c3c;--hover:#353535;
+  --text:#d6d6d6;--dim:#949494;--strong:#fff;--accent:#8b8ef9;--accent2:#6366f1;--on-accent:#fff;
+  --cta:#6366f1;--cta-hover:#5154d8;--btn-radius:13px;--radius:6px;--card:#262626;--card-border:#343434;
+  --shadow:0 10px 28px rgba(0,0,0,.55);--ok:#2d9d78;--warn:#e68619;--danger:#d7373f;color-scheme:dark}
+[data-theme="light"]{
+  --font-ui:"Segoe UI",system-ui,-apple-system,sans-serif;
+  --bg:#ececec;--chrome:#f8f8f8;--panel:#f5f5f5;--line:#cacaca;--border:#dcdcdc;--hover:#e6e6e6;
+  --text:#323232;--dim:#6e6e6e;--strong:#000;--accent:#4f46e5;--accent2:#6366f1;--on-accent:#fff;
+  --cta:#6366f1;--cta-hover:#5154d8;--btn-radius:13px;--radius:6px;--card:#fff;--card-border:#dedede;
+  --shadow:0 8px 24px rgba(0,0,0,.15);--ok:#2d9d78;--warn:#c7700d;--danger:#d7373f;color-scheme:light}
+[data-theme="github"]{
+  --font-ui:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans",Helvetica,Arial,sans-serif;
+  --bg:#f6f8fa;--chrome:#fff;--panel:#fff;--line:#d1d9e0;--border:#d1d9e0;--hover:#eaeef2;
+  --text:#1f2328;--dim:#59636e;--strong:#1f2328;--accent:#0969da;--accent2:#0969da;--on-accent:#fff;
+  --cta:#1f883d;--cta-hover:#1a7f37;--btn-radius:6px;--radius:6px;--card:#fff;--card-border:#d1d9e0;
+  --shadow:0 8px 24px rgba(140,149,159,.25);--ok:#1a7f37;--warn:#9a6700;--danger:#d1242f;color-scheme:light}
+[data-theme="github-dark"]{
+  --font-ui:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans",Helvetica,Arial,sans-serif;
+  --bg:#010409;--chrome:#0d1117;--panel:#0d1117;--line:#3d444d;--border:#3d444d;--hover:#262c36;
+  --text:#f0f6fc;--dim:#9198a1;--strong:#fff;--accent:#4493f8;--accent2:#1f6feb;--on-accent:#fff;
+  --cta:#238636;--cta-hover:#29903b;--btn-radius:6px;--radius:6px;--card:#0d1117;--card-border:#3d444d;
+  --shadow:0 8px 24px rgba(1,4,9,.75);--ok:#3fb950;--warn:#d29922;--danger:#f85149;color-scheme:dark}
+
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--text);font:13px/1.45 var(--font-ui);display:flex;flex-direction:column;user-select:none;overflow:hidden}
+button{font:inherit;color:inherit}
+::-webkit-scrollbar{width:12px;height:12px}
+::-webkit-scrollbar-thumb{background:#5a5a5a55;border:3px solid transparent;background-clip:content-box;border-radius:8px}
+
+header{display:flex;align-items:center;gap:14px;padding:14px 22px;background:var(--chrome);border-bottom:1px solid var(--line);flex:none}
+.logo{width:38px;height:38px;border-radius:9px;background:linear-gradient(135deg,#334155,#6366f1);color:#fff;font-weight:800;font-size:15px;display:grid;place-items:center;letter-spacing:-.02em;flex:none}
+.brand h1{margin:0;font-size:17px;font-weight:650;color:var(--strong)}
+.brand p{margin:0;color:var(--dim);font-size:12px}
+.flex{flex:1}
+.lib{display:flex;align-items:center;gap:8px;max-width:420px;padding:5px 6px 5px 12px;border:1px solid var(--border);border-radius:999px;background:var(--panel);color:var(--dim)}
+.lib span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;direction:rtl}
+.ibtn{height:32px;min-width:32px;padding:0 8px;background:none;border:1px solid transparent;border-radius:var(--radius);display:inline-grid;place-items:center;cursor:default}
+.ibtn:hover{background:var(--hover)}
+.ibtn svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.ibtn.spin svg{animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.btn{height:30px;padding:0 16px;border-radius:var(--btn-radius);border:1px solid var(--border);background:none;font-weight:600;white-space:nowrap}
+.btn:hover{background:var(--hover)}
+.btn.primary{background:var(--cta);border-color:var(--cta);color:var(--on-accent)}
+.btn.primary:hover{background:var(--cta-hover)}
+.btn.small{height:26px;padding:0 10px;font-weight:500}
+.btn:disabled{opacity:.45;pointer-events:none}
+
+main{flex:1;overflow:auto;padding:22px 26px 32px}
+.sect{margin:6px 0 12px;font-size:11px;text-transform:uppercase;letter-spacing:.09em;color:var(--dim);font-weight:650}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(420px,1fr));gap:14px;margin-bottom:26px}
+.card{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:16px;align-items:center;padding:16px 16px 16px 18px;background:var(--card);border:1px solid var(--card-border);border-radius:12px}
+.card.soon{opacity:.8}
+.tile{width:64px;height:64px;border-radius:15px;display:grid;place-items:center;color:#fff;font-weight:800;font-size:25px;letter-spacing:-.03em;box-shadow:0 6px 16px rgba(0,0,0,.25)}
+.info h2{margin:0 0 2px;font-size:15px;font-weight:650;color:var(--strong)}
+.info p{margin:0 0 7px;color:var(--dim);font-size:12px;line-height:1.4}
+.status{display:flex;align-items:center;gap:7px;font-size:12px}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--dim);flex:none}
+.dot.ok{background:var(--ok)}.dot.update{background:var(--warn)}.dot.busy{background:var(--accent);animation:pulse 1s ease-in-out infinite}
+@keyframes pulse{50%{opacity:.3}}
+.actions{display:flex;flex-direction:column;gap:6px;align-items:stretch;min-width:118px}
+.actions .row{display:flex;gap:6px}
+.actions .row .btn{flex:1}
+.empty{padding:28px;text-align:center;color:var(--dim);border:1px dashed var(--border);border-radius:12px;line-height:1.7}
+.toast{position:fixed;left:50%;bottom:28px;transform:translate(-50%,20px);background:var(--card);color:var(--strong);padding:9px 16px;border-radius:var(--radius);
+  border:1px solid var(--border);border-left:4px solid var(--accent);box-shadow:var(--shadow);opacity:0;pointer-events:none;transition:.2s;max-width:80vw}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+.toast.error{border-left-color:var(--danger)}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">Hb</div>
+  <div class="brand"><h1>Studio Hub</h1><p id="tagline"></p></div>
+  <div class="flex"></div>
+  <div class="lib" id="lib" title=""><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+    <span id="libPath"></span><button class="btn small" id="libBtn"></button></div>
+  <button class="ibtn" id="refreshBtn"><svg viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/></svg></button>
+  <button class="ibtn" id="menuBtn"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button>
+</header>
+<main>
+  <div class="sect" id="appsTitle"></div>
+  <div class="grid" id="apps"></div>
+  <div class="sect" id="soonTitle"></div>
+  <div class="grid" id="soon"></div>
+</main>
+<div class="toast" id="toast"></div>
+<script src="native.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
