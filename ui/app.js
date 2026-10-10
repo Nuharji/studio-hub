@@ -124,8 +124,8 @@ function stateOf(name) {
 /* ================= Rendering ================= */
 function tile(name, c = CATALOG[name] || {code: name.replace(/[^A-Za-z]/g, '').slice(0, 2), g: ['#555', '#888']}) {
   const code = c.code.charAt(0).toUpperCase() + c.code.slice(1).toLowerCase();
-  // Dark themes show the light fade, light themes the dark fade (same as each app's own logo).
-  const g = c.gl && (settings.theme === 'dark' || settings.theme === 'github-dark') ? c.gl : c.g;
+  // Dark themes show the dark fade, light themes the light fade (same as each app's own logo).
+  const g = c.gl && (settings.theme === 'light' || settings.theme === 'github') ? c.gl : c.g;
   return `<div class="tile" style="background:linear-gradient(135deg,${g[0]},${g[1]})">${esc(code)}</div>`;
 }
 function card(name) {

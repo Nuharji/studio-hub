@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.2.4 — 2026-10-10
+- Icon fades swapped: dark themes now show the dark fade and light themes the light fade — in the menu bar, on the start screen and in the taskbar.
+
 ## 1.2.3 — 2026-10-10
 - New color for Studio Hub: violet, so it can't be mistaken for Markdown Studio's blue.
 
