@@ -78,6 +78,21 @@ main{flex:1;overflow:auto;padding:22px 26px 32px}
   border:1px solid var(--border);border-left:4px solid var(--accent);box-shadow:var(--shadow);opacity:0;pointer-events:none;transition:.2s;max-width:80vw}
 .toast.show{opacity:1;transform:translate(-50%,0)}
 .toast.error{border-left-color:var(--danger)}
+.self-update{display:flex;align-items:center;gap:10px;margin:0 0 18px;padding:10px 14px;border:1px solid var(--accent2);border-radius:10px;background:color-mix(in srgb,var(--accent2) 12%,transparent);color:var(--strong)}
+.self-update span{flex:1}
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.5);display:grid;place-items:center;z-index:50}
+.modal{width:min(680px,92vw);max-height:84vh;display:flex;flex-direction:column;background:var(--card);border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow)}
+.modal-head{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--border);font-size:15px;font-weight:650;color:var(--strong)}
+.modal-body{padding:6px 20px 18px;overflow:auto;user-select:text}
+.ver{padding:14px 0;border-bottom:1px solid var(--border)}
+.ver:last-child{border-bottom:0}
+.ver-head{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.ver-head b{font-size:14px;color:var(--strong)}
+.ver ul{margin:4px 0 0;padding-left:20px}.ver li{margin:3px 0}.ver p{margin:4px 0}.ver h4{margin:8px 0 2px;font-size:12px}
+.ver code{font:12px Consolas,monospace;background:var(--hover);padding:0 4px;border-radius:3px}
+.tag{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;padding:1px 7px;border-radius:999px;border:1px solid var(--accent2);color:var(--accent)}
+.tag.ok{border-color:var(--ok);color:var(--ok)}
+.dim{color:var(--dim)}
 </style>
 </head>
 <body>
@@ -91,12 +106,17 @@ main{flex:1;overflow:auto;padding:22px 26px 32px}
   <button class="ibtn" id="menuBtn"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button>
 </header>
 <main>
+  <div class="self-update" id="selfUpdate" hidden></div>
   <div class="sect" id="appsTitle"></div>
   <div class="grid" id="apps"></div>
   <div class="sect" id="soonTitle"></div>
   <div class="grid" id="soon"></div>
 </main>
 <div class="toast" id="toast"></div>
+<div class="modal-bg" id="modal" hidden><div class="modal">
+  <div class="modal-head"><span id="modalTitle"></span><button class="ibtn" id="modalClose">&#10005;</button></div>
+  <div class="modal-body" id="modalBody"></div>
+</div></div>
 <script src="native.js"></script>
 <script src="app.js"></script>
 </body>

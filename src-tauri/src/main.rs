@@ -189,6 +189,170 @@ fn run_uninstaller(command: &str) -> Result<(), String> {
     }
 }
 
+/* ===================== GitHub Releases ===================== */
+
+const GITHUB_OWNER: &str = "Nuharji";
+
+/// One downloadable file of a release.
+#[derive(Serialize, Clone)]
+struct Asset {
+    name: String,
+    /// API url: works for public and (with a token) private repositories.
+    url: String,
+    size: u64,
+}
+
+#[derive(Serialize, Clone)]
+struct Release {
+    version: String,
+    name: String,
+    notes: String,
+    published: String,
+    prerelease: bool,
+    setup: Option<Asset>,
+    portable: Option<Asset>,
+}
+
+/// Hides the console window of helper processes such as `gh`.
+fn quiet(cmd: &mut Command) -> &mut Command {
+    #[cfg(windows)]
+    {
+        use std::os::windows::process::CommandExt;
+        cmd.creation_flags(0x0800_0000); // CREATE_NO_WINDOW
+    }
+    cmd
+}
+
+/// Optional GitHub token: lets the owner reach private repositories. Taken from GITHUB_TOKEN or the
+/// GitHub CLI login (`gh auth token`). Public repositories work without one.
+fn github_token() -> Option<String> {
+    if let Ok(t) = std::env::var("GITHUB_TOKEN") {
+        if !t.trim().is_empty() {
+            return Some(t.trim().to_string());
+        }
+    }
+    for gh in ["gh", r"C:\Program Files\GitHub CLI\gh.exe"] {
+        if let Ok(out) = quiet(Command::new(gh).args(["auth", "token"])).output() {
+            let t = String::from_utf8_lossy(&out.stdout).trim().to_string();
+            if out.status.success() && !t.is_empty() {
+                return Some(t);
+            }
+        }
+    }
+    None
+}
+
+fn github_get(url: &str, accept: &str) -> Result<reqwest::blocking::Response, String> {
+    let client = reqwest::blocking::Client::builder()
+        .user_agent("StudioHub")
+        .timeout(std::time::Duration::from_secs(600))
+        .build()
+        .map_err(|e| e.to_string())?;
+    let mut req = client.get(url).header("Accept", accept).header("X-GitHub-Api-Version", "2022-11-28");
+    if let Some(t) = github_token() {
+        req = req.bearer_auth(t);
+    }
+    let resp = req.send().map_err(|e| e.to_string())?;
+    match resp.status().as_u16() {
+        200..=299 => Ok(resp),
+        404 => Err("not found (repository is private or has no releases)".into()),
+        403 | 429 => Err("GitHub rate limit reached — try again later".into()),
+        code => Err(format!("GitHub answered {code}")),
+    }
+}
+
+/// The architecture tag used in installer names: x64, x86 or arm64.
+fn arch_tag() -> &'static str {
+    match std::env::consts::ARCH {
+        "aarch64" => "arm64",
+        "x86" => "x86",
+        _ => "x64",
+    }
+}
+
+/// All releases of an app's repository, newest first, with the installer for this PC.
+#[tauri::command]
+async fn github_releases(repo: String) -> Result<Vec<Release>, String> {
+    tauri::async_runtime::spawn_blocking(move || {
+        let url = format!("https://api.github.com/repos/{GITHUB_OWNER}/{repo}/releases?per_page=50");
+        let text = github_get(&url, "application/vnd.github+json")?.text().map_err(|e| e.to_string())?;
+        let list: Vec<serde_json::Value> = serde_json::from_str(&text).map_err(|e| e.to_string())?;
+        let arch = arch_tag();
+        let mut out: Vec<Release> = list
+            .iter()
+            .filter(|r| !r["draft"].as_bool().unwrap_or(false))
+            .map(|r| {
+                let assets: Vec<Asset> = r["assets"].as_array().map(|a| a.iter().map(|x| Asset {
+                    name: x["name"].as_str().unwrap_or_default().to_string(),
+                    url: x["url"].as_str().unwrap_or_default().to_string(),
+                    size: x["size"].as_u64().unwrap_or(0),
+                }).collect()).unwrap_or_default();
+                // GitHub replaces spaces in file names with dots, so match on the ending only.
+                let find = |suffix: String| assets.iter().find(|a| a.name.ends_with(&suffix)).cloned();
+                let tag = r["tag_name"].as_str().unwrap_or_default();
+                Release {
+                    version: tag.trim_start_matches('v').to_string(),
+                    name: r["name"].as_str().unwrap_or(tag).to_string(),
+                    notes: r["body"].as_str().unwrap_or_default().to_string(),
+                    published: r["published_at"].as_str().unwrap_or_default().to_string(),
+                    prerelease: r["prerelease"].as_bool().unwrap_or(false),
+                    setup: find(format!("_{arch}-setup.exe")),
+                    portable: find(format!("_{arch}_portable.exe")),
+                }
+            })
+            .collect();
+        out.sort_by(|a, b| version_key(&b.version).cmp(&version_key(&a.version)));
+        Ok(out)
+    })
+    .await
+    .map_err(|e| e.to_string())?
+}
+
+#[derive(Serialize, Clone)]
+struct Progress {
+    id: String,
+    done: u64,
+    total: u64,
+}
+
+/// Downloads a release file into %LOCALAPPDATA%\StudioHub\downloads (portable apps stay there) and
+/// returns its path. Progress is reported as "download-progress" events.
+#[tauri::command]
+async fn download_asset(app: AppHandle, id: String, url: String, name: String, size: u64) -> Result<String, String> {
+    tauri::async_runtime::spawn_blocking(move || {
+        use std::io::{Read, Write};
+        let base = std::env::var("LOCALAPPDATA").map(PathBuf::from).unwrap_or_else(|_| std::env::temp_dir());
+        let dir = base.join("StudioHub").join("downloads");
+        fs::create_dir_all(&dir).map_err(|e| e.to_string())?;
+        let target = dir.join(&name);
+        if target.metadata().map(|m| m.len() == size && size > 0).unwrap_or(false) {
+            return Ok(target.to_string_lossy().into_owned());
+        }
+        let mut resp = github_get(&url, "application/octet-stream")?;
+        let total = resp.content_length().unwrap_or(size);
+        let part = dir.join(format!("{name}.part"));
+        let mut file = fs::File::create(&part).map_err(|e| e.to_string())?;
+        let (mut buf, mut done, mut last) = (vec![0u8; 64 * 1024], 0u64, 0u64);
+        loop {
+            let n = resp.read(&mut buf).map_err(|e| e.to_string())?;
+            if n == 0 {
+                break;
+            }
+            file.write_all(&buf[..n]).map_err(|e| e.to_string())?;
+            done += n as u64;
+            if done - last > 256 * 1024 || done == total {
+                last = done;
+                let _ = app.emit("download-progress", Progress { id: id.clone(), done, total });
+            }
+        }
+        drop(file);
+        fs::rename(&part, &target).map_err(|e| e.to_string())?;
+        Ok(target.to_string_lossy().into_owned())
+    })
+    .await
+    .map_err(|e| e.to_string())?
+}
+
 /// Starts an app (installed exe or portable build) without waiting for it.
 #[tauri::command]
 fn launch(path: String) -> Result<(), String> {
@@ -301,6 +465,8 @@ fn main() {
             clipboard_write,
             scan_library,
             installed_apps,
+            github_releases,
+            download_asset,
             install,
             uninstall,
             launch,
