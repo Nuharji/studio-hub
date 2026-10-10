@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.2.3 — 2026-10-10
+- New color for Studio Hub: violet, so it can't be mistaken for Markdown Studio's blue.
+
+
 ## 1.2.2 — 2026-10-10
 - New app in the list: Code Studio, the IDE of the Studio family.
 

@@ -7,16 +7,16 @@ const STORE = 'studio-hub.v1';
 /* The family. `repo` is the GitHub repository (owner is set in the Rust backend).
    Apps found in the library that aren't listed here still show up, with a generic tile. */
 const CATALOG = {
-  'Markdown Studio': {code: 'Md', g: ['#1B2F6B', '#378EF0'], repo: 'markdown-studio',
+  'Markdown Studio': {code: 'Md', g: ['#1B2F6B', '#378EF0'], gl: ['#378EF0', '#9CCBFF'], repo: 'markdown-studio',
     en: 'Markdown & LaTeX editor with live preview, diagrams and a full syntax guide.',
     de: 'Markdown- & LaTeX-Editor mit Live-Vorschau, Diagrammen und Syntax-Anleitung.'},
-  'PDF Studio': {code: 'Pd', g: ['#6B1420', '#F0485C'], repo: 'pdf-studio',
+  'PDF Studio': {code: 'Pd', g: ['#6B1420', '#F0485C'], gl: ['#E8394F', '#FF9EAA'], repo: 'pdf-studio',
     en: 'View, search, annotate, reorder, merge and split PDF files.',
     de: 'PDFs ansehen, durchsuchen, kommentieren, sortieren, zusammenführen und teilen.'},
-  'Data Studio': {code: 'Dt', g: ['#0A4535', '#1FBF8F'], repo: 'data-studio',
+  'Data Studio': {code: 'Dt', g: ['#0A4535', '#1FBF8F'], gl: ['#14A97A', '#86EBC8'], repo: 'data-studio',
     en: 'CSV, JSON and Excel: filter, sort, chart, edit and convert.',
     de: 'CSV, JSON und Excel: filtern, sortieren, Diagramme, bearbeiten und umwandeln.'},
-  'Code Studio': {code: 'Cd', g: ['#5A2A05', '#F58A1F'], repo: 'code-studio',
+  'Code Studio': {code: 'Cd', g: ['#5A2A05', '#F58A1F'], gl: ['#EE7A12', '#FFC27E'], repo: 'code-studio',
     en: 'IDE in the JetBrains style: projects, Search Everywhere, find in files, terminal, local history.',
     de: 'IDE im JetBrains-Stil: Projekte, Überall suchen, In Dateien suchen, Terminal, lokaler Verlauf.'}
 };
@@ -124,7 +124,9 @@ function stateOf(name) {
 /* ================= Rendering ================= */
 function tile(name, c = CATALOG[name] || {code: name.replace(/[^A-Za-z]/g, '').slice(0, 2), g: ['#555', '#888']}) {
   const code = c.code.charAt(0).toUpperCase() + c.code.slice(1).toLowerCase();
-  return `<div class="tile" style="background:linear-gradient(135deg,${c.g[0]},${c.g[1]})">${esc(code)}</div>`;
+  // Dark themes show the light fade, light themes the dark fade (same as each app's own logo).
+  const g = c.gl && (settings.theme === 'dark' || settings.theme === 'github-dark') ? c.gl : c.g;
+  return `<div class="tile" style="background:linear-gradient(135deg,${g[0]},${g[1]})">${esc(code)}</div>`;
 }
 function card(name) {
   const st = stateOf(name), b = best(name), inst = installed[name], c = CATALOG[name] || {};

@@ -5,18 +5,18 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Studio Hub</title>
 <style>
-/* ===== Studio family themes; Hub accent = #6366F1 ===== */
+/* ===== Studio family themes; Hub accent = #8E4AEE ===== */
 :root,[data-theme="dark"]{
   --font-ui:"Segoe UI",system-ui,-apple-system,sans-serif;
   --bg:#1b1b1b;--chrome:#2b2b2b;--panel:#242424;--line:#111;--border:#3c3c3c;--hover:#353535;
-  --text:#d6d6d6;--dim:#949494;--strong:#fff;--accent:#8b8ef9;--accent2:#6366f1;--on-accent:#fff;
-  --cta:#6366f1;--cta-hover:#5154d8;--btn-radius:13px;--radius:6px;--card:#262626;--card-border:#343434;
+  --text:#d6d6d6;--dim:#949494;--strong:#fff;--accent:#b48cf5;--accent2:#8e4aee;--on-accent:#fff;
+  --cta:#8e4aee;--cta-hover:#7a38d8;--btn-radius:13px;--radius:6px;--card:#262626;--card-border:#343434;
   --shadow:0 10px 28px rgba(0,0,0,.55);--ok:#2d9d78;--warn:#e68619;--danger:#d7373f;color-scheme:dark}
 [data-theme="light"]{
   --font-ui:"Segoe UI",system-ui,-apple-system,sans-serif;
   --bg:#ececec;--chrome:#f8f8f8;--panel:#f5f5f5;--line:#cacaca;--border:#dcdcdc;--hover:#e6e6e6;
-  --text:#323232;--dim:#6e6e6e;--strong:#000;--accent:#4f46e5;--accent2:#6366f1;--on-accent:#fff;
-  --cta:#6366f1;--cta-hover:#5154d8;--btn-radius:13px;--radius:6px;--card:#fff;--card-border:#dedede;
+  --text:#323232;--dim:#6e6e6e;--strong:#000;--accent:#6d28d9;--accent2:#8e4aee;--on-accent:#fff;
+  --cta:#8e4aee;--cta-hover:#7a38d8;--btn-radius:13px;--radius:6px;--card:#fff;--card-border:#dedede;
   --shadow:0 8px 24px rgba(0,0,0,.15);--ok:#2d9d78;--warn:#c7700d;--danger:#d7373f;color-scheme:light}
 [data-theme="github"]{
   --font-ui:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans",Helvetica,Arial,sans-serif;
@@ -31,6 +31,9 @@
   --cta:#238636;--cta-hover:#29903b;--btn-radius:6px;--radius:6px;--card:#0d1117;--card-border:#3d444d;
   --shadow:0 8px 24px rgba(1,4,9,.75);--ok:#3fb950;--warn:#d29922;--danger:#f85149;color-scheme:dark}
 
+/* App tile: dark fade in light themes, light fade in dark themes (also used for the window icon, see native.js) */
+:root{--tile-a:#2e0f57;--tile-b:#9b59f0}
+[data-theme="dark"],[data-theme="github-dark"]{--tile-a:#8e4aee;--tile-b:#d2b4ff}
 *{box-sizing:border-box}
 [hidden]{display:none!important}
 html,body{height:100%;margin:0}
@@ -40,7 +43,7 @@ button{font:inherit;color:inherit}
 ::-webkit-scrollbar-thumb{background:#5a5a5a55;border:3px solid transparent;background-clip:content-box;border-radius:8px}
 
 header{display:flex;align-items:center;gap:14px;padding:14px 22px;background:var(--chrome);border-bottom:1px solid var(--line);flex:none}
-.logo{width:38px;height:38px;border-radius:9px;background:linear-gradient(135deg,#334155,#6366f1);color:#fff;font-weight:800;font-size:15px;display:grid;place-items:center;letter-spacing:-.02em;flex:none}
+.logo{width:38px;height:38px;border-radius:22.5%;background:linear-gradient(135deg,var(--tile-a),var(--tile-b));color:#fff;font-weight:800;font-size:15px;display:grid;place-items:center;letter-spacing:-.02em;flex:none}
 .brand h1{margin:0;font-size:17px;font-weight:650;color:var(--strong)}
 .brand p{margin:0;color:var(--dim);font-size:12px}
 .flex{flex:1}
@@ -63,7 +66,7 @@ main{flex:1;overflow:auto;padding:22px 26px 32px}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(420px,1fr));gap:14px;margin-bottom:26px}
 .card{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:16px;align-items:center;padding:16px 16px 16px 18px;background:var(--card);border:1px solid var(--card-border);border-radius:12px}
 .card.soon{opacity:.8}
-.tile{width:64px;height:64px;border-radius:15px;display:grid;place-items:center;color:#fff;font-weight:800;font-size:25px;letter-spacing:-.03em;box-shadow:0 6px 16px rgba(0,0,0,.25)}
+.tile{width:64px;height:64px;border-radius:22.5%;display:grid;place-items:center;color:#fff;font-weight:800;font-size:25px;letter-spacing:-.03em;box-shadow:0 6px 16px rgba(0,0,0,.25)}
 .info h2{margin:0 0 2px;font-size:15px;font-weight:650;color:var(--strong)}
 .info p{margin:0 0 7px;color:var(--dim);font-size:12px;line-height:1.4}
 .status{display:flex;align-items:center;gap:7px;font-size:12px}
