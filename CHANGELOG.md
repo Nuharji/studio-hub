@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.2.5 — 2026-10-10
+- Everything now comes from GitHub (github.com/Nuharji): installs, updates, portable versions and older versions. The local library folder is gone — no setup needed, and no GitHub login since the repositories are public.
+- If GitHub can't be reached, the app cards say so.
+
 ## 1.2.4 — 2026-10-10
 - Icon fades swapped: dark themes now show the dark fade and light themes the light fade — in the menu bar, on the start screen and in the taskbar.
 

@@ -5,7 +5,7 @@ const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>'
 const STORE = 'studio-hub.v1';
 
 /* The family. `repo` is the GitHub repository (owner is set in the Rust backend).
-   Apps found in the library that aren't listed here still show up, with a generic tile. */
+   Everything is downloaded from the apps' GitHub releases (github.com/Nuharji). */
 const CATALOG = {
   'Markdown Studio': {code: 'Md', g: ['#1B2F6B', '#378EF0'], gl: ['#378EF0', '#9CCBFF'], repo: 'markdown-studio',
     en: 'Markdown & LaTeX editor with live preview, diagrams and a full syntax guide.',
@@ -32,7 +32,7 @@ const I18N = {
     reinstall: 'Reinstall', current: 'Installed', latest: 'Latest', noNotes: 'No notes for this version.', close: 'Close',
     noReleases: 'No releases on GitHub yet.', githubError: 'GitHub: {e}',
     installed: 'Installed · {v}', updateAvail: 'Installed {v} · update to {n} available', available: 'Not installed · {v} ready to install',
-    missing: 'No installer found (GitHub or library)', installing: 'Installing…', updating: 'Updating…', removing: 'Uninstalling…',
+    missing: 'No release on GitHub yet', offline: 'GitHub not reachable — check your internet connection', installing: 'Installing…', updating: 'Updating…', removing: 'Uninstalling…',
     downloading: 'Downloading… {p} %', fromGithub: 'GitHub', fromLibrary: 'library',
     devStatus: 'Coming soon', noApps: 'No Studio apps found — neither on GitHub nor in this folder.<br>Check your internet connection or choose the folder that contains the app projects.',
     done: '{name} {v} installed', updated: '{name} updated to {v}', removed: '{name} uninstalled', failed: '{name}: {e}',
@@ -50,7 +50,7 @@ const I18N = {
     reinstall: 'Neu installieren', current: 'Installiert', latest: 'Neueste', noNotes: 'Keine Notizen zu dieser Version.', close: 'Schließen',
     noReleases: 'Noch keine Veröffentlichungen auf GitHub.', githubError: 'GitHub: {e}',
     installed: 'Installiert · {v}', updateAvail: 'Installiert {v} · Update auf {n} verfügbar', available: 'Nicht installiert · {v} bereit',
-    missing: 'Kein Installationsprogramm gefunden (GitHub oder Bibliothek)', installing: 'Wird installiert…', updating: 'Wird aktualisiert…',
+    missing: 'Noch kein Release auf GitHub', offline: 'GitHub nicht erreichbar — prüfe deine Internetverbindung', installing: 'Wird installiert…', updating: 'Wird aktualisiert…',
     removing: 'Wird deinstalliert…', downloading: 'Wird heruntergeladen… {p} %', fromGithub: 'GitHub', fromLibrary: 'Bibliothek',
     devStatus: 'Demnächst',
     noApps: 'Keine Studio-Apps gefunden – weder auf GitHub noch in diesem Ordner.<br>Prüfe die Internetverbindung oder wähle den Ordner mit den App-Projekten.',
@@ -62,7 +62,7 @@ const I18N = {
     restartHub: 'Studio Hub {v} ist installiert – starte den Hub neu, um ihn zu verwenden.', noLibrary: 'kein Bibliotheksordner'
   }
 };
-let settings = {lang: 'auto', theme: 'dark', library: 'C:\\ai-stuff'}, lang = 'en', ownVersion = '', platform = 'windows';
+let settings = {lang: 'auto', theme: 'dark'}, lang = 'en', ownVersion = '', platform = 'windows';
 try { Object.assign(settings, JSON.parse(localStorage.getItem(STORE)) || {}); } catch (e) {}
 const save = () => { try { localStorage.setItem(STORE, JSON.stringify(settings)); } catch (e) {} };
 function t(k, vars) {
@@ -82,8 +82,8 @@ function toast(msg, error = false) {
 }
 
 /* ================= State =================
-   packages: installers in the local library · releases: GitHub releases per app · installed: Windows registry */
-let packages = {}, releases = {}, githubErrors = {}, installed = {}, busy = {};
+   releases: GitHub releases per app · installed: what is installed on this computer */
+let releases = {}, githubErrors = {}, installed = {}, busy = {};
 const repoOf = name => (CATALOG[name] || (name === SELF ? {repo: 'studio-hub'} : {})).repo;
 async function fetchReleases() {
   const names = [...Object.keys(CATALOG), SELF];
@@ -96,21 +96,18 @@ async function scan() {
   const btn = $('#refreshBtn'); btn.classList.add('spin');
   try {
     if (invoke) {
-      const [pk, inst] = await Promise.all([settings.library ? invoke('scan_library', {dir: settings.library}) : [], invoke('installed_apps'), fetchReleases()]);
-      packages = Object.fromEntries(pk.map(p => [p.product, p]));
-      const names = new Set([...Object.keys(CATALOG), ...Object.keys(packages)]);
+      const [inst] = await Promise.all([invoke('installed_apps'), fetchReleases()]);
+      const names = new Set(Object.keys(CATALOG));
       installed = Object.fromEntries(inst.filter(i => names.has(i.product)).map(i => [i.product, i]));
     }
   } catch (e) { toast(String(e), true); }
   btn.classList.remove('spin');
   render();
 }
-/* The newest installable version: a GitHub release with an installer, or the library file — whichever is newer. */
+/* The newest installable version: the latest GitHub release with an installer for this system. */
 function best(name) {
-  const rel = (releases[name] || []).find(r => r.setup && !r.prerelease), pkg = packages[name];
-  if (rel && (!pkg || cmpVer(rel.version, pkg.version) >= 0)) return {version: rel.version, source: 'github', release: rel};
-  if (pkg) return {version: pkg.version, source: 'library', pkg};
-  return null;
+  const rel = (releases[name] || []).find(r => r.setup && !r.prerelease);
+  return rel ? {version: rel.version, release: rel} : null;
 }
 function stateOf(name) {
   const b = best(name), inst = installed[name];
@@ -130,17 +127,17 @@ function tile(name, c = CATALOG[name] || {code: name.replace(/[^A-Za-z]/g, '').s
 }
 function card(name) {
   const st = stateOf(name), b = best(name), inst = installed[name], c = CATALOG[name] || {};
-  const src = b ? ` (${t(b.source === 'github' ? 'fromGithub' : 'fromLibrary')})` : '';
+  const src = '';
   const status = {
     busy: `<span class="dot busy"></span>${esc(busy[name] && busy[name].text || '')}`,
     update: `<span class="dot update"></span>${esc(t('updateAvail', {v: inst && inst.version, n: b && b.version}) + src)}`,
     installed: `<span class="dot ok"></span>${esc(t('installed', {v: inst && inst.version}))}`,
     available: `<span class="dot"></span>${esc(t('available', {v: b && b.version}) + src)}`,
-    missing: `<span class="dot"></span>${esc(t('missing'))}`
+    missing: `<span class="dot"></span>${esc(t(githubErrors[name] ? 'offline' : 'missing'))}`
   }[st];
   const btn = (act, label, primary = false, disabled = false) =>
     `<button class="btn${primary ? ' primary' : ''}" data-act="${act}" data-name="${esc(name)}"${disabled ? ' disabled' : ''}>${esc(t(label))}</button>`;
-  const portable = b && (b.source === 'github' ? b.release.portable : b.pkg.portable);
+  const portable = b && b.release.portable;
   let actions = '';
   if (st === 'busy') actions = `<button class="btn primary" disabled>${esc(busy[name].text)}</button>`;
   else if (st === 'update') actions = btn('install', 'update', true) + `<div class="row">${btn('open', 'open', false, !inst.exe)}${btn('more', '⋯')}</div>`;
@@ -155,10 +152,9 @@ function render() {
   document.documentElement.lang = lang;
   document.documentElement.dataset.theme = settings.theme;
   $('#tagline').textContent = t('tagline');
-  $('#libPath').textContent = settings.library || t('noLibrary'); $('#lib').title = `${t('library')}: ${settings.library || t('noLibrary')}`;
-  $('#libBtn').textContent = t('change'); $('#refreshBtn').title = t('refresh'); $('#menuBtn').title = t('menu');
+  $('#refreshBtn').title = t('refresh'); $('#menuBtn').title = t('menu');
   $('#appsTitle').textContent = t('apps'); $('#soonTitle').textContent = t('soon');
-  const names = [...new Set([...Object.keys(CATALOG), ...Object.keys(packages), ...Object.keys(installed)])].filter(n => n !== SELF);
+  const names = Object.keys(CATALOG).filter(n => n !== SELF);
   const any = names.some(n => best(n) || installed[n]);
   $('#apps').innerHTML = any ? names.map(card).join('') : `<div class="empty">${t('noApps')}</div>`;
   const soon = SOON.filter(s => !best(s.name));
@@ -192,11 +188,11 @@ async function download(name, asset) {
 }
 /* Installs the newest version, or a specific GitHub release (older versions from the history). */
 async function doInstall(name, release = null) {
-  const b = release ? {version: release.version, source: 'github', release} : best(name); if (!b) return;
+  const b = release ? {version: release.version, release} : best(name); if (!b) return;
   const wasInstalled = !!installed[name];
   busy[name] = {text: t(wasInstalled ? 'updating' : 'installing')}; render();
   try {
-    const setup = b.source === 'github' ? await download(name, b.release.setup) : b.pkg.setup;
+    const setup = await download(name, b.release.setup);
     busy[name].text = t(wasInstalled ? 'updating' : 'installing'); render();
     await invoke('install', {setup, product: name, version: b.version});
     toast(wasInstalled ? t('updated', {name, v: b.version}) : t('done', {name, v: b.version}));
@@ -206,12 +202,10 @@ async function doInstall(name, release = null) {
 async function doPortable(name) {
   const b = best(name); if (!b) return;
   try {
-    if (b.source === 'github') {
-      busy[name] = {text: t('downloading', {p: 0})}; render();
-      const path = await download(name, b.release.portable);
-      delete busy[name]; render();
-      await start(name, path);
-    } else await start(name, b.pkg.portable);
+    busy[name] = {text: t('downloading', {p: 0})}; render();
+    const path = await download(name, b.release.portable);
+    delete busy[name]; render();
+    await start(name, path);
   } catch (e) { delete busy[name]; render(); toast(t('failed', {name, e}), true); }
 }
 /* Updating the Hub itself. Windows: the installer has to replace this running program, so it runs visibly
@@ -286,14 +280,14 @@ window.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); 
 /* ================= Menus & actions ================= */
 function moreMenu(name) {
   const inst = installed[name], b = best(name);
-  const portable = b && (b.source === 'github' ? b.release.portable : b.pkg.portable);
+  const portable = b && b.release.portable;
   return [
     {id: `open|${name}`, label: t('open'), enabled: !!(inst && inst.exe)},
     {id: `install|${name}`, label: t(inst ? 'update' : 'install'), enabled: !!b && (!inst || cmpVer(b.version, inst.version) > 0)},
     {id: `portable|${name}`, label: t('portable'), enabled: !!portable}, null,
     {id: `history|${name}`, label: t('history'), enabled: !!repoOf(name)}, null,
     {id: `reveal|${name}`, label: t('reveal'), enabled: !!(inst && inst.location)},
-    {id: `revealSetup|${name}`, label: t('revealSetup'), enabled: !!packages[name]}, null,
+    null,
     {id: `uninstall|${name}`, label: t('uninstall'), enabled: !!inst}
   ];
 }
@@ -304,7 +298,7 @@ function settingsMenu() {
     {id: 'lang|en', label: `${t('language')}: English`, checked: settings.lang === 'en'},
     {id: 'lang|de', label: `${t('language')}: Deutsch`, checked: settings.lang === 'de'}, null,
     ...th.map(([v, k]) => ({id: `theme|${v}`, label: `${t('theme')}: ${t(k)}`, checked: settings.theme === v})), null,
-    {id: 'library|', label: `${t('library')}: ${t('change')}`}, {id: `history|${SELF}`, label: t('selfHistory')}, {id: 'about|', label: t('about')}
+    {id: 'github|', label: 'github.com/Nuharji'}, {id: `history|${SELF}`, label: t('selfHistory')}, {id: 'about|', label: t('about')}
   ];
 }
 async function act(action, name) {
@@ -317,14 +311,10 @@ async function act(action, name) {
     case 'history': showHistory(name); break;
     case 'selfUpdate': await selfUpdate(); break;
     case 'reveal': if (inst) invoke('reveal', {path: inst.exe || inst.location}); break;
-    case 'revealSetup': if (packages[name]) invoke('reveal', {path: packages[name].setup}); break;
+
     case 'lang': settings.lang = name; applyLang(); save(); render(); break;
     case 'theme': settings.theme = name; save(); render(); break;
-    case 'library': {
-      const dir = await invoke('pick_folder');
-      if (dir) { settings.library = dir; save(); scan(); }
-      break;
-    }
+    case 'github': invoke('open_url', {url: 'https://github.com/Nuharji'}); break;
     case 'about': toast(t('aboutText', {v: ownVersion})); break;
   }
 }
@@ -334,7 +324,7 @@ document.addEventListener('click', e => {
   if (b.dataset.act === 'more') return showMenu(moreMenu(b.dataset.name));
   act(b.dataset.act, b.dataset.name);
 });
-$('#libBtn').onclick = () => act('library');
+$('#lib').onclick = () => act('github');
 $('#refreshBtn').onclick = scan;
 $('#menuBtn').onclick = () => showMenu(settingsMenu());
 function showMenu(items) {
@@ -360,9 +350,7 @@ window.addEventListener('focus', () => {
   if (invoke) {
     ownVersion = await window.__TAURI__.app.getVersion().catch(() => '');
     platform = await invoke('platform').catch(() => 'windows');
-    // The local library is a Windows developer setup; elsewhere apps come from GitHub.
-    if (platform !== 'windows' && settings.library === 'C:\\ai-stuff') { settings.library = ''; save(); }
   }
   lastFocusScan = Date.now(); scan();
 })();
-window.__hub = {scan, act, doInstall, state: () => ({packages, releases, githubErrors, installed, busy})};
+window.__hub = {scan, act, doInstall, state: () => ({releases, githubErrors, installed, busy})};

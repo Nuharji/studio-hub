@@ -3,7 +3,6 @@
 
 use serde::{Deserialize, Serialize};
 use std::{
-    collections::HashMap,
     fs,
     path::{Path, PathBuf},
     process::Command,
@@ -12,15 +11,6 @@ use tauri::{AppHandle, Emitter};
 use tauri_plugin_clipboard_manager::ClipboardExt;
 use tauri_plugin_dialog::{DialogExt, MessageDialogButtons, MessageDialogKind};
 use tauri_plugin_opener::OpenerExt;
-
-/// An installer found in the library folder (the newest version per app).
-#[derive(Serialize, Clone)]
-struct Package {
-    product: String,
-    version: String,
-    setup: String,
-    portable: Option<String>,
-}
 
 /// An app registered in Windows' list of installed programs.
 #[derive(Serialize, Default)]
@@ -80,53 +70,6 @@ fn data_dir() -> PathBuf {
     }
 }
 
-/// "Markdown Studio_1.3.1_x64-setup.exe" -> ("Markdown Studio", "1.3.1")
-fn parse_installer(name: &str) -> Option<(String, String)> {
-    let stem = name.strip_suffix(&setup_suffix())?;
-    let (product, version) = stem.rsplit_once('_')?;
-    // Files downloaded from GitHub use dots instead of spaces ("Markdown.Studio_…").
-    Some((product.replace('.', " "), version.to_string()))
-}
-
-/// Looks for installers in the folder, its sub-folders and their `dist` folders.
-#[tauri::command]
-fn scan_library(dir: String) -> Vec<Package> {
-    let root = PathBuf::from(&dir);
-    let mut places = vec![root.clone()];
-    if let Ok(entries) = fs::read_dir(&root) {
-        for e in entries.flatten() {
-            let p = e.path();
-            if p.is_dir() {
-                places.push(p.join("dist"));
-                places.push(p);
-            }
-        }
-    }
-    let mut best: HashMap<String, Package> = HashMap::new();
-    for place in places {
-        let Ok(entries) = fs::read_dir(&place) else { continue };
-        for e in entries.flatten() {
-            let name = e.file_name().to_string_lossy().into_owned();
-            let Some((product, version)) = parse_installer(&name) else { continue };
-            let newer = best.get(&product).map_or(true, |b| version_key(&version) > version_key(&b.version));
-            if newer {
-                let setup = e.path().to_string_lossy().into_owned();
-                let portable = match std::env::consts::OS {
-                    "windows" => {
-                        let p = place.join(format!("{}_{}{}", product.replace(' ', "-"), version, portable_suffix().unwrap_or_default()));
-                        p.is_file().then(|| p.to_string_lossy().into_owned())
-                    }
-                    "linux" => Some(setup.clone()),
-                    _ => None,
-                };
-                best.insert(product.clone(), Package { product, version, setup, portable });
-            }
-        }
-    }
-    let mut list: Vec<Package> = best.into_values().collect();
-    list.sort_by(|a, b| a.product.cmp(&b.product));
-    list
-}
 
 #[cfg(windows)]
 fn unquote(s: &str) -> String {
@@ -664,7 +607,6 @@ fn main() {
             context_menu,
             clipboard_read,
             clipboard_write,
-            scan_library,
             installed_apps,
             github_releases,
             download_asset,
