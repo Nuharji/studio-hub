@@ -23,45 +23,8 @@ const CATALOG = {
 const SOON = [];   // apps in development, e.g. {name, code, g: [from, to], en, de}
 const SELF = 'Studio Hub';
 
-const I18N = {
-  en: {
-    tagline: 'Install, update and open your Studio apps', library: 'Library', change: 'Change…', refresh: 'Check again',
-    menu: 'Settings', apps: 'Your apps', soon: 'In development', open: 'Open', install: 'Install', update: 'Update',
-    uninstall: 'Uninstall', portable: 'Try without installing', reveal: 'Show in folder', revealSetup: 'Show installer',
-    history: 'Changelog & versions…', historyTitle: '{name} — changelog & versions', installThis: 'Install this version',
-    reinstall: 'Reinstall', current: 'Installed', latest: 'Latest', noNotes: 'No notes for this version.', close: 'Close',
-    noReleases: 'No releases on GitHub yet.', githubError: 'GitHub: {e}',
-    installed: 'Installed · {v}', updateAvail: 'Installed {v} · update to {n} available', available: 'Not installed · {v} ready to install',
-    missing: 'No release on GitHub yet', offline: 'GitHub not reachable — check your internet connection', installing: 'Installing…', updating: 'Updating…', removing: 'Uninstalling…',
-    downloading: 'Downloading… {p} %', fromGithub: 'GitHub', fromLibrary: 'library',
-    devStatus: 'Coming soon', noApps: 'No Studio apps found — neither on GitHub nor in this folder.<br>Check your internet connection or choose the folder that contains the app projects.',
-    done: '{name} {v} installed', updated: '{name} updated to {v}', removed: '{name} uninstalled', failed: '{name}: {e}',
-    confirmTitle: 'Uninstall', confirmMsg: 'Uninstall {name}? Your documents are not touched.', confirmOk: 'Uninstall', cancel: 'Cancel',
-    language: 'Language', theme: 'Theme', sysLang: 'System language', themeDark: 'Dark', themeLight: 'Light', themeGithub: 'GitHub',
-    themeGithubDark: 'GitHub Dark', about: 'About Studio Hub', aboutText: 'Studio Hub {v} — part of the Studio family.',
-    openFail: 'Could not start {name}: {e}', selfUpdate: 'Studio Hub {v} is available', selfHistory: 'What’s new',
-    restartHub: 'Studio Hub {v} is installed — restart the Hub to use it.', noLibrary: 'no library folder'
-  },
-  de: {
-    tagline: 'Studio-Apps installieren, aktualisieren und öffnen', library: 'Bibliothek', change: 'Ändern…', refresh: 'Erneut prüfen',
-    menu: 'Einstellungen', apps: 'Deine Apps', soon: 'In Entwicklung', open: 'Öffnen', install: 'Installieren', update: 'Aktualisieren',
-    uninstall: 'Deinstallieren', portable: 'Ohne Installation testen', reveal: 'Im Ordner anzeigen', revealSetup: 'Installationsdatei anzeigen',
-    history: 'Änderungen & Versionen…', historyTitle: '{name} – Änderungen & Versionen', installThis: 'Diese Version installieren',
-    reinstall: 'Neu installieren', current: 'Installiert', latest: 'Neueste', noNotes: 'Keine Notizen zu dieser Version.', close: 'Schließen',
-    noReleases: 'Noch keine Veröffentlichungen auf GitHub.', githubError: 'GitHub: {e}',
-    installed: 'Installiert · {v}', updateAvail: 'Installiert {v} · Update auf {n} verfügbar', available: 'Nicht installiert · {v} bereit',
-    missing: 'Noch kein Release auf GitHub', offline: 'GitHub nicht erreichbar — prüfe deine Internetverbindung', installing: 'Wird installiert…', updating: 'Wird aktualisiert…',
-    removing: 'Wird deinstalliert…', downloading: 'Wird heruntergeladen… {p} %', fromGithub: 'GitHub', fromLibrary: 'Bibliothek',
-    devStatus: 'Demnächst',
-    noApps: 'Keine Studio-Apps gefunden – weder auf GitHub noch in diesem Ordner.<br>Prüfe die Internetverbindung oder wähle den Ordner mit den App-Projekten.',
-    done: '{name} {v} installiert', updated: '{name} auf {v} aktualisiert', removed: '{name} deinstalliert', failed: '{name}: {e}',
-    confirmTitle: 'Deinstallieren', confirmMsg: '{name} deinstallieren? Deine Dokumente bleiben erhalten.', confirmOk: 'Deinstallieren',
-    cancel: 'Abbrechen', language: 'Sprache', theme: 'Design', sysLang: 'Systemsprache', themeDark: 'Dunkel', themeLight: 'Hell',
-    themeGithub: 'GitHub', themeGithubDark: 'GitHub Dunkel', about: 'Über Studio Hub', aboutText: 'Studio Hub {v} – Teil der Studio-Familie.',
-    openFail: '{name} konnte nicht gestartet werden: {e}', selfUpdate: 'Studio Hub {v} ist verfügbar', selfHistory: 'Neuigkeiten',
-    restartHub: 'Studio Hub {v} ist installiert – starte den Hub neu, um ihn zu verwenden.', noLibrary: 'kein Bibliotheksordner'
-  }
-};
+/* The texts (English / German) live in src-tauri/i18n/*.json and are loaded from Rust at start. */
+let I18N = {en: {}, de: {}};
 let settings = {lang: 'auto', theme: 'dark'}, lang = 'en', ownVersion = '', platform = 'windows';
 try { Object.assign(settings, JSON.parse(localStorage.getItem(STORE)) || {}); } catch (e) {}
 const save = () => { try { localStorage.setItem(STORE, JSON.stringify(settings)); } catch (e) {} };
@@ -346,6 +309,7 @@ window.addEventListener('focus', () => {
 });
 
 (async () => {
+  if (invoke) I18N = await invoke('texts');
   applyLang(); render();
   if (invoke) {
     ownVersion = await window.__TAURI__.app.getVersion().catch(() => '');

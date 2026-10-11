@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.2.6 — 2026-10-11
+- The English and German texts are now language files (src-tauri/i18n) delivered by the app's Rust core instead of being part of the JavaScript.
+
 ## 1.2.5 — 2026-10-10
 - Everything now comes from GitHub (github.com/Nuharji): installs, updates, portable versions and older versions. The local library folder is gone — no setup needed, and no GitHub login since the repositories are public.
 - If GitHub can't be reached, the app cards say so.
