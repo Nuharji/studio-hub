@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.3.0 — 2026-10-11
+- “Run portable” on Windows now downloads the portable .zip where a release has one (program plus the spell-check dictionaries), unpacks it safely into its own folder and starts the program from there. Older releases still use the bare .exe.
+
 ## 1.2.6 — 2026-10-11
 - The English and German texts are now language files (src-tauri/i18n) delivered by the app's Rust core instead of being part of the JavaScript.
 

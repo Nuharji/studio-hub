@@ -43,13 +43,37 @@ fn setup_suffix() -> String {
     }
 }
 
-/// Ending of a build that runs without installing: the Windows portable exe; on Linux the AppImage itself.
-fn portable_suffix() -> Option<String> {
+/// Endings of a build that runs without installing, best first: on Windows the portable .zip (program plus the
+/// spell-check dictionaries), else the bare portable .exe of older releases; on Linux the AppImage itself.
+fn portable_suffixes() -> Vec<String> {
     match std::env::consts::OS {
-        "windows" => Some(format!("_{}_portable.exe", arch_tag())),
-        "linux" => Some(setup_suffix()),
-        _ => None,
+        "windows" => vec![format!("_{}_portable.zip", arch_tag()), format!("_{}_portable.exe", arch_tag())],
+        "linux" => vec![setup_suffix()],
+        _ => vec![],
     }
+}
+
+/// Unpacks a portable .zip into a folder of the same name next to it and returns the program inside.
+/// Entries can't leave that folder; an earlier unpacked copy of the same file is reused.
+fn unpack_portable(zip_path: &Path) -> Result<PathBuf, String> {
+    let dir = zip_path.with_extension("");
+    let exe_in = |d: &Path| fs::read_dir(d).ok()?.flatten().map(|e| e.path()).find(|p| p.extension().is_some_and(|x| x.eq_ignore_ascii_case("exe")));
+    if let Some(exe) = exe_in(&dir) { return Ok(exe); }
+    let tmp = dir.with_extension("unpacking");
+    let _ = fs::remove_dir_all(&tmp);
+    let mut archive = zip::ZipArchive::new(fs::File::open(zip_path).map_err(|e| e.to_string())?).map_err(|e| e.to_string())?;
+    for i in 0..archive.len() {
+        let mut entry = archive.by_index(i).map_err(|e| e.to_string())?;
+        let Some(rel) = entry.enclosed_name() else { continue };
+        let out = tmp.join(rel);
+        if entry.is_dir() { fs::create_dir_all(&out).map_err(|e| e.to_string())?; continue; }
+        if let Some(p) = out.parent() { fs::create_dir_all(p).map_err(|e| e.to_string())?; }
+        let mut f = fs::File::create(&out).map_err(|e| e.to_string())?;
+        std::io::copy(&mut entry, &mut f).map_err(|e| e.to_string())?;
+    }
+    let _ = fs::remove_dir_all(&dir);
+    fs::rename(&tmp, &dir).map_err(|e| e.to_string())?;
+    exe_in(&dir).ok_or_else(|| "no program in the portable .zip".into())
 }
 
 fn home() -> PathBuf {
@@ -413,7 +437,7 @@ async fn github_releases(repo: String) -> Result<Vec<Release>, String> {
         let url = format!("https://api.github.com/repos/{GITHUB_OWNER}/{repo}/releases?per_page=50");
         let text = github_get(&url, "application/vnd.github+json")?.text().map_err(|e| e.to_string())?;
         let list: Vec<serde_json::Value> = serde_json::from_str(&text).map_err(|e| e.to_string())?;
-        let (setup_end, portable_end) = (setup_suffix(), portable_suffix());
+        let (setup_end, portable_ends) = (setup_suffix(), portable_suffixes());
         let mut out: Vec<Release> = list
             .iter()
             .filter(|r| !r["draft"].as_bool().unwrap_or(false))
@@ -433,7 +457,7 @@ async fn github_releases(repo: String) -> Result<Vec<Release>, String> {
                     published: r["published_at"].as_str().unwrap_or_default().to_string(),
                     prerelease: r["prerelease"].as_bool().unwrap_or(false),
                     setup: find(&setup_end),
-                    portable: portable_end.as_deref().and_then(find),
+                    portable: portable_ends.iter().find_map(|s| find(s)),
                 }
             })
             .collect();
@@ -452,7 +476,8 @@ struct Progress {
 }
 
 /// Downloads a release file into the Hub's data folder (…/StudioHub/downloads; portable apps stay there)
-/// and returns its path. Progress is reported as "download-progress" events.
+/// and returns its path — for a portable .zip, the program in the unpacked folder. Progress is reported as
+/// "download-progress" events.
 #[tauri::command]
 async fn download_asset(app: AppHandle, id: String, url: String, name: String, size: u64) -> Result<String, String> {
     tauri::async_runtime::spawn_blocking(move || {
@@ -460,8 +485,12 @@ async fn download_asset(app: AppHandle, id: String, url: String, name: String, s
         let dir = data_dir().join("downloads");
         fs::create_dir_all(&dir).map_err(|e| e.to_string())?;
         let target = dir.join(&name);
+        let done_path = |p: &Path| -> Result<String, String> {
+            let p = if p.extension().is_some_and(|x| x == "zip") { unpack_portable(p)? } else { p.to_path_buf() };
+            Ok(p.to_string_lossy().into_owned())
+        };
         if target.metadata().map(|m| m.len() == size && size > 0).unwrap_or(false) {
-            return Ok(target.to_string_lossy().into_owned());
+            return done_path(&target);
         }
         let mut resp = github_get(&url, "application/octet-stream")?;
         let total = resp.content_length().unwrap_or(size);
@@ -482,7 +511,9 @@ async fn download_asset(app: AppHandle, id: String, url: String, name: String, s
         }
         drop(file);
         fs::rename(&part, &target).map_err(|e| e.to_string())?;
-        Ok(target.to_string_lossy().into_owned())
+        // A newer download of the same file replaces an earlier unpacked copy.
+        let _ = fs::remove_dir_all(target.with_extension(""));
+        done_path(&target)
     })
     .await
     .map_err(|e| e.to_string())?
@@ -629,3 +660,36 @@ fn main() {
         .run(tauri::generate_context!())
         .expect("error while running Studio Hub");
 }
+
+#[cfg(test)]
+mod portable_tests {
+    use super::*;
+    use std::io::Write;
+
+    #[test]
+    fn unpacks_portable_zip_safely() {
+        let dir = std::env::temp_dir().join(format!("hub-zip-test-{}", std::process::id()));
+        let _ = fs::remove_dir_all(&dir);
+        fs::create_dir_all(&dir).unwrap();
+        let zip_path = dir.join("Markdown-Studio_9.9.9_x64_portable.zip");
+        {
+            let mut w = zip::ZipWriter::new(fs::File::create(&zip_path).unwrap());
+            let o = zip::write::SimpleFileOptions::default();
+            w.start_file("Markdown-Studio_9.9.9_x64_portable.exe", o).unwrap();
+            w.write_all(b"MZ").unwrap();
+            w.start_file("dictionaries/en/index.dic", o).unwrap();
+            w.write_all(b"1\nhouse\n").unwrap();
+            w.start_file("../evil.txt", o).unwrap();
+            w.write_all(b"x").unwrap();
+            w.finish().unwrap();
+        }
+        let exe = unpack_portable(&zip_path).unwrap();
+        assert_eq!(exe, dir.join("Markdown-Studio_9.9.9_x64_portable").join("Markdown-Studio_9.9.9_x64_portable.exe"));
+        assert!(dir.join("Markdown-Studio_9.9.9_x64_portable/dictionaries/en/index.dic").exists());
+        assert!(!dir.join("evil.txt").exists() && !std::env::temp_dir().join("evil.txt").exists());
+        // A second call reuses the unpacked folder.
+        assert_eq!(unpack_portable(&zip_path).unwrap(), exe);
+        let _ = fs::remove_dir_all(&dir);
+    }
+}
+
