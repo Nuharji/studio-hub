@@ -261,6 +261,7 @@ function settingsMenu() {
     {id: 'lang|en', label: `${t('language')}: English`, checked: settings.lang === 'en'},
     {id: 'lang|de', label: `${t('language')}: Deutsch`, checked: settings.lang === 'de'}, null,
     ...th.map(([v, k]) => ({id: `theme|${v}`, label: `${t('theme')}: ${t(k)}`, checked: settings.theme === v})), null,
+    {id: 'autoHide|', label: t('autoHide'), checked: !!settings.autoHide}, null,
     {id: 'github|', label: 'github.com/Nuharji'}, {id: `history|${SELF}`, label: t('selfHistory')}, {id: 'about|', label: t('about')}
   ];
 }
@@ -277,6 +278,7 @@ async function act(action, name) {
 
     case 'lang': settings.lang = name; applyLang(); save(); render(); break;
     case 'theme': settings.theme = name; save(); render(); break;
+    case 'autoHide': settings.autoHide = !settings.autoHide; save(); if (window.AutoHide) AutoHide.set(settings.autoHide); break;
     case 'github': invoke('open_url', {url: 'https://github.com/Nuharji'}); break;
     case 'about': toast(t('aboutText', {v: ownVersion})); break;
   }
@@ -307,6 +309,9 @@ window.addEventListener('focus', () => {
   if (Object.keys(busy).length || Date.now() - lastFocusScan < 60000) return;
   lastFocusScan = Date.now(); scan();
 });
+
+// Auto-hide: the header slides in at the top edge (autohide.js).
+if (window.AutoHide) { AutoHide.init({top: ['header']}); AutoHide.set(settings.autoHide); }
 
 (async () => {
   if (invoke) I18N = await invoke('texts');

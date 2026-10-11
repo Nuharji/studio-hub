@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.4.0 — 2026-10-11
+- New: Auto-hide header (settings menu ⋯). The header slides in when the mouse touches the top edge of the window.
+
 ## 1.3.0 — 2026-10-11
 - “Run portable” on Windows now downloads the portable .zip where a release has one (program plus the spell-check dictionaries), unpacks it safely into its own folder and starts the program from there. Older releases still use the bare .exe.
 

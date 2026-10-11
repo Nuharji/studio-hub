@@ -57,5 +57,6 @@
   "selfUpdate": "Studio Hub {v} ist verfügbar",
   "selfHistory": "Neuigkeiten",
   "restartHub": "Studio Hub {v} ist installiert – starte den Hub neu, um ihn zu verwenden.",
-  "noLibrary": "kein Bibliotheksordner"
+  "noLibrary": "kein Bibliotheksordner",
+  "autoHide": "Kopfleiste automatisch ausblenden"
 }
