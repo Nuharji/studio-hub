@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.5.0 — 2026-10-15
+- New apps in the family: Slides Studio (presentations) and Plan Studio (school planner). Apps without a release yet show “no release on GitHub yet” instead of an error.
+- Code Studio is marked Pre-Alpha.
+- New: work folder for all apps (settings menu ⋯): every Studio app opens and saves in it.
+- Theme and language are shared with all Studio apps: changing them here (or in any app) changes them everywhere.
+
 ## 1.4.0 — 2026-10-11
 - New: Auto-hide header (settings menu ⋯). The header slides in when the mouse touches the top edge of the window.
 

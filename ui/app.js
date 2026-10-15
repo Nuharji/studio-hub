@@ -16,7 +16,13 @@ const CATALOG = {
   'Data Studio': {code: 'Dt', g: ['#0A4535', '#1FBF8F'], gl: ['#14A97A', '#86EBC8'], repo: 'data-studio',
     en: 'CSV, JSON and Excel: filter, sort, chart, edit and convert.',
     de: 'CSV, JSON und Excel: filtern, sortieren, Diagramme, bearbeiten und umwandeln.'},
-  'Code Studio': {code: 'Cd', g: ['#5A2A05', '#F58A1F'], gl: ['#EE7A12', '#FFC27E'], repo: 'code-studio',
+  'Slides Studio': {code: 'Sl', g: ['#5C0B45', '#E0369A'], gl: ['#D6338E', '#FFA6D6'], repo: 'slides-studio',
+    en: 'Presentations with layouts, designs, shapes and tables; present full screen with a presenter view, export to PowerPoint and PDF.',
+    de: 'Präsentationen mit Layouts, Designs, Formen und Tabellen; Vollbild mit Referentenansicht, Export als PowerPoint und PDF.'},
+  'Plan Studio': {code: 'Pl', g: ['#5A4400', '#E6B800'], gl: ['#E0A800', '#FFE27A'], repo: 'plan-studio',
+    en: 'School planner: timetable, homework, exams and deadlines — with a calendar export.',
+    de: 'Schulplaner: Stundenplan, Hausaufgaben, Klausuren und Termine — mit Kalender-Export.'},
+  'Code Studio': {code: 'Cd', g: ['#5A2A05', '#F58A1F'], gl: ['#EE7A12', '#FFC27E'], repo: 'code-studio', stage: 'preAlpha',
     en: 'IDE in the JetBrains style: projects, Search Everywhere, find in files, terminal, local history.',
     de: 'IDE im JetBrains-Stil: Projekte, Überall suchen, In Dateien suchen, Terminal, lokaler Verlauf.'}
 };
@@ -52,7 +58,7 @@ async function fetchReleases() {
   const names = [...Object.keys(CATALOG), SELF];
   await Promise.all(names.map(async n => {
     try { releases[n] = await invoke('github_releases', {repo: repoOf(n)}); delete githubErrors[n]; }
-    catch (e) { releases[n] = []; githubErrors[n] = String(e); }
+    catch (e) { releases[n] = []; if (/not found/i.test(String(e))) delete githubErrors[n]; else githubErrors[n] = String(e); }
   }));
 }
 async function scan() {
@@ -108,7 +114,7 @@ function card(name) {
   else if (st === 'available') actions = btn('install', 'install', true) + `<div class="row">${btn('portable', 'portable', false, !portable)}${btn('more', '⋯')}</div>`;
   else actions = `<button class="btn primary" disabled>${esc(t('install'))}</button><div class="row">${btn('more', '⋯')}</div>`;
   return `<article class="card" data-name="${esc(name)}">${tile(name)}
-    <div class="info"><h2>${esc(name)}</h2><p>${esc(c[lang] || c.en || '')}</p><div class="status">${status}</div></div>
+    <div class="info"><h2>${esc(name)}${c.stage ? ` <span class="tag stage">${esc(t(c.stage))}</span>` : ''}</h2><p>${esc(c[lang] || c.en || '')}</p><div class="status">${status}</div></div>
     <div class="actions">${actions}</div></article>`;
 }
 function render() {
@@ -118,8 +124,7 @@ function render() {
   $('#refreshBtn').title = t('refresh'); $('#menuBtn').title = t('menu');
   $('#appsTitle').textContent = t('apps'); $('#soonTitle').textContent = t('soon');
   const names = Object.keys(CATALOG).filter(n => n !== SELF);
-  const any = names.some(n => best(n) || installed[n]);
-  $('#apps').innerHTML = any ? names.map(card).join('') : `<div class="empty">${t('noApps')}</div>`;
+  $('#apps').innerHTML = names.length ? names.map(card).join('') : `<div class="empty">${t('noApps')}</div>`;
   const soon = SOON.filter(s => !best(s.name));
   $('#soonTitle').hidden = !soon.length;
   $('#soon').innerHTML = soon.map(s => `<article class="card soon">${tile(s.name, s)}
@@ -262,6 +267,8 @@ function settingsMenu() {
     {id: 'lang|de', label: `${t('language')}: Deutsch`, checked: settings.lang === 'de'}, null,
     ...th.map(([v, k]) => ({id: `theme|${v}`, label: `${t('theme')}: ${t(k)}`, checked: settings.theme === v})), null,
     {id: 'autoHide|', label: t('autoHide'), checked: !!settings.autoHide}, null,
+    {id: 'workFolder|', label: workFolder() ? t('workFolderIs', {p: workFolder()}) : t('workFolderPick')},
+    {id: 'workFolderClear|', label: t('workFolderClear'), enabled: !!workFolder()}, null,
     {id: 'github|', label: 'github.com/Nuharji'}, {id: `history|${SELF}`, label: t('selfHistory')}, {id: 'about|', label: t('about')}
   ];
 }
@@ -276,8 +283,14 @@ async function act(action, name) {
     case 'selfUpdate': await selfUpdate(); break;
     case 'reveal': if (inst) invoke('reveal', {path: inst.exe || inst.location}); break;
 
-    case 'lang': settings.lang = name; applyLang(); save(); render(); break;
-    case 'theme': settings.theme = name; save(); render(); break;
+    case 'lang': settings.lang = name; applyLang(); save(); render(); sharePush(); break;
+    case 'theme': settings.theme = name; save(); render(); sharePush(); break;
+    case 'workFolder': {
+      const p = await invoke('pick_folder');
+      if (p) { window.Shared && Shared.push({workFolder: p}); toast(t('workFolderSet', {p})); }
+      break;
+    }
+    case 'workFolderClear': window.Shared && Shared.push({workFolder: null}); toast(t('workFolderCleared')); break;
     case 'autoHide': settings.autoHide = !settings.autoHide; save(); if (window.AutoHide) AutoHide.set(settings.autoHide); break;
     case 'github': invoke('open_url', {url: 'https://github.com/Nuharji'}); break;
     case 'about': toast(t('aboutText', {v: ownVersion})); break;
@@ -300,6 +313,9 @@ if (window.Native) {
   Native.setProvider(e => { const c = e.target.closest('.card[data-name]'); return c ? moreMenu(c.dataset.name) : null; });
   Native.setHandler(id => { const [a, n] = id.split('|'); act(a, n); });
 }
+/* Theme, language and work folder are shared by all Studio apps (shared.js / shared.rs). */
+const workFolder = () => (window.Shared && Shared.values.workFolder) || '';
+const sharePush = () => { if (window.Shared) Shared.push({theme: settings.theme, lang: settings.lang}); };
 function applyLang() {
   lang = settings.lang === 'auto' ? ((navigator.language || 'en').toLowerCase().startsWith('de') ? 'de' : 'en') : settings.lang;
 }
@@ -315,7 +331,12 @@ if (window.AutoHide) { AutoHide.init({top: ['header']}); AutoHide.set(settings.a
 
 (async () => {
   if (invoke) I18N = await invoke('texts');
-  applyLang(); render();
+  if (window.Shared) await Shared.init({apply: sh => {
+    if (sh.theme) settings.theme = sh.theme;
+    if (sh.lang) settings.lang = sh.lang;
+    applyLang(); save(); render();
+  }});
+  applyLang(); render(); sharePush();
   if (invoke) {
     ownVersion = await window.__TAURI__.app.getVersion().catch(() => '');
     platform = await invoke('platform').catch(() => 'windows');

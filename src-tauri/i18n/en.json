@@ -58,5 +58,11 @@
   "selfHistory": "What’s new",
   "restartHub": "Studio Hub {v} is installed — restart the Hub to use it.",
   "noLibrary": "no library folder",
-  "autoHide": "Auto-hide header"
+  "autoHide": "Auto-hide header",
+  "preAlpha": "Pre-Alpha",
+  "workFolderPick": "Choose a work folder for all apps…",
+  "workFolderIs": "Work folder: {p}",
+  "workFolderClear": "Reset work folder",
+  "workFolderSet": "All Studio apps now open and save in {p}.",
+  "workFolderCleared": "The apps open and save in their usual folders again."
 }

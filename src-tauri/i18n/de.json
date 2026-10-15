@@ -58,5 +58,11 @@
   "selfHistory": "Neuigkeiten",
   "restartHub": "Studio Hub {v} ist installiert – starte den Hub neu, um ihn zu verwenden.",
   "noLibrary": "kein Bibliotheksordner",
-  "autoHide": "Kopfleiste automatisch ausblenden"
+  "autoHide": "Kopfleiste automatisch ausblenden",
+  "preAlpha": "Pre-Alpha",
+  "workFolderPick": "Arbeitsordner für alle Apps wählen…",
+  "workFolderIs": "Arbeitsordner: {p}",
+  "workFolderClear": "Arbeitsordner zurücksetzen",
+  "workFolderSet": "Alle Studio-Apps öffnen und speichern jetzt in {p}.",
+  "workFolderCleared": "Die Apps öffnen und speichern wieder in ihren üblichen Ordnern."
 }

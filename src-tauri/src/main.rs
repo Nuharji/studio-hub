@@ -1,6 +1,8 @@
 // Hide the console window in release builds on Windows.
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+mod shared;
+
 use serde::{Deserialize, Serialize};
 use std::{
     fs,
@@ -545,8 +547,7 @@ fn reveal(app: AppHandle, path: String) -> Result<(), String> {
 
 #[tauri::command]
 async fn pick_folder(app: AppHandle) -> Option<String> {
-    app.dialog()
-        .file()
+    crate::shared::file_dialog(&app)
         .blocking_pick_folder()
         .and_then(|f| f.into_path().ok())
         .map(|p| p.to_string_lossy().into_owned())
@@ -641,6 +642,8 @@ fn main() {
             let _ = app.emit("context-menu", event.id().as_ref());
         })
         .invoke_handler(tauri::generate_handler![
+            shared::shared_get,
+            shared::shared_set,
             texts,
             platform,
             context_menu,
