@@ -16,10 +16,10 @@ const CATALOG = {
   'Data Studio': {code: 'Dt', g: ['#0A4535', '#1FBF8F'], gl: ['#14A97A', '#86EBC8'], repo: 'data-studio',
     en: 'CSV, JSON and Excel: filter, sort, chart, edit and convert.',
     de: 'CSV, JSON und Excel: filtern, sortieren, Diagramme, bearbeiten und umwandeln.'},
-  'Slides Studio': {code: 'Sl', g: ['#5C0B45', '#E0369A'], gl: ['#D6338E', '#FFA6D6'], repo: 'slides-studio',
+  'Slides Studio': {code: 'Sl', g: ['#5C0B45', '#E0369A'], gl: ['#D6338E', '#FFA6D6'], repo: 'slides-studio', stage: 'preAlpha',
     en: 'Presentations with layouts, designs, shapes and tables; present full screen with a presenter view, export to PowerPoint and PDF.',
     de: 'Präsentationen mit Layouts, Designs, Formen und Tabellen; Vollbild mit Referentenansicht, Export als PowerPoint und PDF.'},
-  'Plan Studio': {code: 'Pl', g: ['#5A4400', '#E6B800'], gl: ['#E0A800', '#FFE27A'], repo: 'plan-studio',
+  'Plan Studio': {code: 'Pl', g: ['#5A4400', '#E6B800'], gl: ['#E0A800', '#FFE27A'], repo: 'plan-studio', stage: 'preAlpha',
     en: 'School planner: timetable, homework, exams and deadlines — with a calendar export.',
     de: 'Schulplaner: Stundenplan, Hausaufgaben, Klausuren und Termine — mit Kalender-Export.'},
   'Code Studio': {code: 'Cd', g: ['#5A2A05', '#F58A1F'], gl: ['#EE7A12', '#FFC27E'], repo: 'code-studio', stage: 'preAlpha',
@@ -94,6 +94,13 @@ function tile(name, c = CATALOG[name] || {code: name.replace(/[^A-Za-z]/g, '').s
   const g = c.gl && (settings.theme === 'light' || settings.theme === 'github') ? c.gl : c.g;
   return `<div class="tile" style="background:linear-gradient(135deg,${g[0]},${g[1]})">${esc(code)}</div>`;
 }
+/* Apps before version 1.0 are marked Pre-Alpha (from the newest release, else the installed version);
+   the catalog can set it too. */
+function stageOf(name) {
+  const c = CATALOG[name] || {}, b = best(name), inst = installed[name];
+  const v = (b && b.version) || (inst && inst.version);
+  return c.stage || (v && cmpVer(v, '1.0.0') < 0 ? 'preAlpha' : null);
+}
 function card(name) {
   const st = stateOf(name), b = best(name), inst = installed[name], c = CATALOG[name] || {};
   const src = '';
@@ -114,7 +121,7 @@ function card(name) {
   else if (st === 'available') actions = btn('install', 'install', true) + `<div class="row">${btn('portable', 'portable', false, !portable)}${btn('more', '⋯')}</div>`;
   else actions = `<button class="btn primary" disabled>${esc(t('install'))}</button><div class="row">${btn('more', '⋯')}</div>`;
   return `<article class="card" data-name="${esc(name)}">${tile(name)}
-    <div class="info"><h2>${esc(name)}${c.stage ? ` <span class="tag stage">${esc(t(c.stage))}</span>` : ''}</h2><p>${esc(c[lang] || c.en || '')}</p><div class="status">${status}</div></div>
+    <div class="info"><h2>${esc(name)}${stageOf(name) ? ` <span class="tag stage">${esc(t(stageOf(name)))}</span>` : ''}</h2><p>${esc(c[lang] || c.en || '')}</p><div class="status">${status}</div></div>
     <div class="actions">${actions}</div></article>`;
 }
 function render() {

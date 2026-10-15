@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.5.1 — 2026-10-15
+- Every app before version 1.0 is marked Pre-Alpha on its card (Slides Studio, Plan Studio, Code Studio).
+
 ## 1.5.0 — 2026-10-15
 - New apps in the family: Slides Studio (presentations) and Plan Studio (school planner). Apps without a release yet show “no release on GitHub yet” instead of an error.
 - Code Studio is marked Pre-Alpha.
