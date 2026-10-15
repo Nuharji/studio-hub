@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.5.2 — 2026-10-15
+- App icon with a picture of what the app does, like Slides and Plan Studio; the window and taskbar icon is now the same picture.
+- The cards show each app's icon.
+
 ## 1.5.1 — 2026-10-15
 - Every app before version 1.0 is marked Pre-Alpha on its card (Slides Studio, Plan Studio, Code Studio).
 

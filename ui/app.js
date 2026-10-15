@@ -88,7 +88,9 @@ function stateOf(name) {
 }
 
 /* ================= Rendering ================= */
+/* The app's own icon (ui/icons/<code>.png, the same picture as the installed app); apps without one get a letter tile. */
 function tile(name, c = CATALOG[name] || {code: name.replace(/[^A-Za-z]/g, '').slice(0, 2), g: ['#555', '#888']}) {
+  if (CATALOG[name]) return `<img class="tile icon" src="icons/${esc(c.code.toLowerCase())}.png" alt="">`;
   const code = c.code.charAt(0).toUpperCase() + c.code.slice(1).toLowerCase();
   // Dark themes show the dark fade, light themes the light fade (same as each app's own logo).
   const g = c.gl && (settings.theme === 'light' || settings.theme === 'github') ? c.gl : c.g;
