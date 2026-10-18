@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.6.0 — 2026-10-18
+- New in the catalog: **Viewer Studio** (Pre-Alpha) — look at photos, videos, music and 3D models (STL, OBJ, GLB, 3MF), with sizes and volume for 3D printing.
+- Fixed: the “Pre-Alpha” label broke into two lines next to longer app names.
+
 ## 1.5.2 — 2026-10-15
 - App icon with a picture of what the app does, like Slides and Plan Studio; the window and taskbar icon is now the same picture.
 - The cards show each app's icon.

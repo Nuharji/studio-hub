@@ -22,6 +22,9 @@ const CATALOG = {
   'Plan Studio': {code: 'Pl', g: ['#5A4400', '#E6B800'], gl: ['#E0A800', '#FFE27A'], repo: 'plan-studio', stage: 'preAlpha',
     en: 'School planner: timetable, homework, exams and deadlines — with a calendar export.',
     de: 'Schulplaner: Stundenplan, Hausaufgaben, Klausuren und Termine — mit Kalender-Export.'},
+  'Viewer Studio': {code: 'Vw', g: ['#3B1D7A', '#8B5CF6'], gl: ['#7C3AED', '#C4B5FD'], repo: 'viewer-studio', stage: 'preAlpha',
+    en: 'Look at photos, videos, music and 3D models (STL, OBJ, GLB, 3MF) — with sizes and volume for 3D printing.',
+    de: 'Fotos, Videos, Musik und 3D-Modelle (STL, OBJ, GLB, 3MF) ansehen — mit Maßen und Volumen für den 3D-Druck.'},
   'Code Studio': {code: 'Cd', g: ['#5A2A05', '#F58A1F'], gl: ['#EE7A12', '#FFC27E'], repo: 'code-studio', stage: 'preAlpha',
     en: 'IDE in the JetBrains style: projects, Search Everywhere, find in files, terminal, local history.',
     de: 'IDE im JetBrains-Stil: Projekte, Überall suchen, In Dateien suchen, Terminal, lokaler Verlauf.'}
