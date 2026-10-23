@@ -19,7 +19,7 @@ const CATALOG = {
   'Slides Studio': {code: 'Sl', g: ['#5C0B45', '#E0369A'], gl: ['#D6338E', '#FFA6D6'], repo: 'slides-studio', stage: 'preAlpha',
     en: 'Presentations with layouts, designs, shapes and tables; present full screen with a presenter view, export to PowerPoint and PDF.',
     de: 'Präsentationen mit Layouts, Designs, Formen und Tabellen; Vollbild mit Referentenansicht, Export als PowerPoint und PDF.'},
-  'Plan Studio': {code: 'Pl', g: ['#5A4400', '#E6B800'], gl: ['#E0A800', '#FFE27A'], repo: 'plan-studio', stage: 'preAlpha',
+  'Plan Studio': {code: 'Pl', g: ['#5A4400', '#E6B800'], gl: ['#E0A800', '#FFE27A'], repo: 'plan-studio',
     en: 'School planner: timetable, homework, exams and deadlines — with a calendar export.',
     de: 'Schulplaner: Stundenplan, Hausaufgaben, Klausuren und Termine — mit Kalender-Export.'},
   'Viewer Studio': {code: 'Vw', g: ['#3B1D7A', '#8B5CF6'], gl: ['#7C3AED', '#C4B5FD'], repo: 'viewer-studio', stage: 'preAlpha',

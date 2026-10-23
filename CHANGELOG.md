@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.7.1 — 2026-10-24
+- Plan Studio is stable (1.0) and no longer marked Pre-Alpha.
+
 ## 1.7.0 — 2026-10-24
 - New: sync folder for two computers (settings menu → "Sync folder for two computers…"). Choose the same folder — e.g. in
   iCloud Drive, OneDrive or Dropbox — on both computers: Plan Studio keeps its plan there (from 0.9.0), so both computers
