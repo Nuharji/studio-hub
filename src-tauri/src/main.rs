@@ -359,7 +359,7 @@ const GITHUB_OWNER: &str = "Nuharji";
 #[derive(Serialize, Clone)]
 struct Asset {
     name: String,
-    /// API url: works for public and (with a token) private repositories.
+    /// Download link (github.com/…/releases/download/…).
     url: String,
     size: u64,
 }
@@ -393,7 +393,8 @@ fn github_token() -> Option<String> {
             return Some(t.trim().to_string());
         }
     }
-    for gh in ["gh", r"C:\Program Files\GitHub CLI\gh.exe"] {
+    // Programs started from the Dock / Finder don't get the shell's PATH, so the usual install places are tried too.
+    for gh in ["gh", r"C:\Program Files\GitHub CLI\gh.exe", "/opt/homebrew/bin/gh", "/usr/local/bin/gh"] {
         if let Ok(out) = quiet(Command::new(gh).args(["auth", "token"])).output() {
             let t = String::from_utf8_lossy(&out.stdout).trim().to_string();
             if out.status.success() && !t.is_empty() {
@@ -423,6 +424,67 @@ fn github_get(url: &str, accept: &str) -> Result<reqwest::blocking::Response, St
     }
 }
 
+/* Release lists from GitHub, kept on disk. GitHub answers at most 60 requests an hour per internet connection without
+   signing in, so: a list younger than 10 minutes is used as it is; an older one is asked for again with its ETag — an
+   unchanged answer (304) doesn't count against the limit; and when GitHub refuses (limit reached, offline) the last
+   list is used. Only without any list the error is shown ("rate-limit|<unix time it ends>"). */
+const FRESH_SECS: u64 = 600;
+
+#[derive(Serialize, Deserialize, Default)]
+struct CachedList {
+    etag: String,
+    body: String,
+    at: u64,
+}
+
+fn now_secs() -> u64 { std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).map(|d| d.as_secs()).unwrap_or(0) }
+
+fn list_cache(repo: &str) -> PathBuf { data_dir().join("github-cache").join(format!("{repo}.json")) }
+
+/// The release list of a repository as GitHub's JSON text — from the cache when possible (see above).
+fn releases_json(repo: &str, force: bool) -> Result<String, String> {
+    let path = list_cache(repo);
+    let cached: Option<CachedList> = fs::read_to_string(&path).ok().and_then(|t| serde_json::from_str(&t).ok());
+    if let Some(c) = &cached {
+        if !force && now_secs().saturating_sub(c.at) < FRESH_SECS { return Ok(c.body.clone()); }
+    }
+    let save = |c: &CachedList| {
+        let _ = fs::create_dir_all(path.parent().unwrap_or(Path::new(".")));
+        let _ = fs::write(&path, serde_json::to_string(c).unwrap_or_default());
+    };
+    let url = format!("https://api.github.com/repos/{GITHUB_OWNER}/{repo}/releases?per_page=50");
+    let client = reqwest::blocking::Client::builder().user_agent("StudioHub").timeout(std::time::Duration::from_secs(30)).build().map_err(|e| e.to_string())?;
+    let mut req = client.get(&url).header("Accept", "application/vnd.github+json").header("X-GitHub-Api-Version", "2022-11-28");
+    if let Some(t) = github_token() { req = req.bearer_auth(t); }
+    if let Some(c) = &cached { if !c.etag.is_empty() { req = req.header("If-None-Match", &c.etag); } }
+    let resp = match req.send() {
+        Ok(r) => r,
+        Err(e) => return cached.map(|c| c.body).ok_or_else(|| e.to_string()),   // offline: the last list
+    };
+    let status = resp.status().as_u16();
+    match status {
+        200..=299 => {
+            let etag = resp.headers().get("etag").and_then(|v| v.to_str().ok()).unwrap_or("").to_string();
+            let body = resp.text().map_err(|e| e.to_string())?;
+            save(&CachedList { etag, body: body.clone(), at: now_secs() });
+            Ok(body)
+        }
+        304 => {
+            let mut c = cached.unwrap_or_default();
+            c.at = now_secs();
+            save(&c);
+            Ok(c.body)
+        }
+        404 => Err("not found (repository is private or has no releases)".into()),
+        403 | 429 => {
+            if let Some(c) = cached { return Ok(c.body); }
+            let reset = resp.headers().get("x-ratelimit-reset").and_then(|v| v.to_str().ok()).and_then(|v| v.parse::<u64>().ok()).unwrap_or(0);
+            Err(format!("rate-limit|{reset}"))
+        }
+        code => cached.map(|c| c.body).ok_or_else(|| format!("GitHub answered {code}")),
+    }
+}
+
 /// The architecture tag used in installer names: x64, x86 or arm64.
 fn arch_tag() -> &'static str {
     match std::env::consts::ARCH {
@@ -434,10 +496,9 @@ fn arch_tag() -> &'static str {
 
 /// All releases of an app's repository, newest first, with the installer for this PC.
 #[tauri::command]
-async fn github_releases(repo: String) -> Result<Vec<Release>, String> {
+async fn github_releases(repo: String, force: Option<bool>) -> Result<Vec<Release>, String> {
     tauri::async_runtime::spawn_blocking(move || {
-        let url = format!("https://api.github.com/repos/{GITHUB_OWNER}/{repo}/releases?per_page=50");
-        let text = github_get(&url, "application/vnd.github+json")?.text().map_err(|e| e.to_string())?;
+        let text = releases_json(&repo, force.unwrap_or(false))?;
         let list: Vec<serde_json::Value> = serde_json::from_str(&text).map_err(|e| e.to_string())?;
         let (setup_end, portable_ends) = (setup_suffix(), portable_suffixes());
         let mut out: Vec<Release> = list
@@ -448,7 +509,8 @@ async fn github_releases(repo: String) -> Result<Vec<Release>, String> {
             .map(|r| {
                 let assets: Vec<Asset> = r["assets"].as_array().map(|a| a.iter().map(|x| Asset {
                     name: x["name"].as_str().unwrap_or_default().to_string(),
-                    url: x["url"].as_str().unwrap_or_default().to_string(),
+                    // The normal download link: it doesn't count against GitHub's API limit.
+                    url: x["browser_download_url"].as_str().or(x["url"].as_str()).unwrap_or_default().to_string(),
                     size: x["size"].as_u64().unwrap_or(0),
                 }).collect()).unwrap_or_default();
                 // GitHub replaces spaces in file names with dots, so match on the ending only.
@@ -696,5 +758,18 @@ mod portable_tests {
         assert_eq!(unpack_portable(&zip_path).unwrap(), exe);
         let _ = fs::remove_dir_all(&dir);
     }
-}
 
+    /// `cargo test live_release_cache -- --ignored`: asks GitHub once, then answers from the cache without asking.
+    #[test]
+    #[ignore]
+    fn live_release_cache() {
+        let _ = fs::remove_file(list_cache("studio-hub"));
+        let a = releases_json("studio-hub", true).unwrap();
+        let c: CachedList = serde_json::from_str(&fs::read_to_string(list_cache("studio-hub")).unwrap()).unwrap();
+        assert!(!c.etag.is_empty() && c.body == a, "kept with its ETag");
+        let t0 = std::time::Instant::now();
+        assert_eq!(releases_json("studio-hub", false).unwrap(), a);
+        assert!(t0.elapsed().as_millis() < 50, "fresh list from the cache, without asking");
+        assert_eq!(releases_json("studio-hub", true).unwrap(), a, "asked again: unchanged (304)");
+    }
+}

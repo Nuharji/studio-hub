@@ -64,5 +64,6 @@
   "workFolderIs": "Work folder: {p}",
   "workFolderClear": "Reset work folder",
   "workFolderSet": "All Studio apps now open and save in {p}.",
-  "workFolderCleared": "The apps open and save in their usual folders again."
+  "workFolderCleared": "The apps open and save in their usual folders again.",
+  "rateLimit": "GitHub's limit for this internet connection is used up — the app list comes back at {time}."
 }

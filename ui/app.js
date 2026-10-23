@@ -57,18 +57,24 @@ function toast(msg, error = false) {
    releases: GitHub releases per app · installed: what is installed on this computer */
 let releases = {}, githubErrors = {}, installed = {}, busy = {};
 const repoOf = name => (CATALOG[name] || (name === SELF ? {repo: 'studio-hub'} : {})).repo;
-async function fetchReleases() {
+/* force: the refresh button (Rust still asks GitHub only "has it changed?", which doesn't use up its hourly limit). */
+async function fetchReleases(force = false) {
   const names = [...Object.keys(CATALOG), SELF];
   await Promise.all(names.map(async n => {
-    try { releases[n] = await invoke('github_releases', {repo: repoOf(n)}); delete githubErrors[n]; }
-    catch (e) { releases[n] = []; if (/not found/i.test(String(e))) delete githubErrors[n]; else githubErrors[n] = String(e); }
+    try { releases[n] = await invoke('github_releases', {repo: repoOf(n), force}); delete githubErrors[n]; }
+    catch (e) {
+      releases[n] = releases[n] || [];
+      const m = String(e).match(/^rate-limit\|(\d+)/);
+      if (/not found/i.test(String(e))) delete githubErrors[n];
+      else githubErrors[n] = m ? t('rateLimit', {time: +m[1] ? new Date(+m[1] * 1000).toLocaleTimeString(lang, {hour: '2-digit', minute: '2-digit'}) : '–'}) : String(e);
+    }
   }));
 }
-async function scan() {
+async function scan(force = false) {
   const btn = $('#refreshBtn'); btn.classList.add('spin');
   try {
     if (invoke) {
-      const [inst] = await Promise.all([invoke('installed_apps'), fetchReleases()]);
+      const [inst] = await Promise.all([invoke('installed_apps'), fetchReleases(force)]);
       const names = new Set(Object.keys(CATALOG));
       installed = Object.fromEntries(inst.filter(i => names.has(i.product)).map(i => [i.product, i]));
     }
@@ -315,7 +321,7 @@ document.addEventListener('click', e => {
   act(b.dataset.act, b.dataset.name);
 });
 $('#lib').onclick = () => act('github');
-$('#refreshBtn').onclick = scan;
+$('#refreshBtn').onclick = () => scan(true);
 $('#menuBtn').onclick = () => showMenu(settingsMenu());
 function showMenu(items) {
   if (!invoke) return;

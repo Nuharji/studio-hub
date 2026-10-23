@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.6.2 — 2026-10-23
+- Fixed: "GitHub rate limit reached". GitHub allows 60 requests an hour per internet connection without signing in, and
+  the Hub asked again for every app each time its window came to the front. Now the release lists are kept on disk: a
+  list younger than 10 minutes is used as it is, an older one is only checked for changes (an unchanged answer doesn't
+  count against the limit), and when GitHub refuses, the last list is shown instead of an error. Without any list the
+  Hub says when GitHub answers again.
+- Downloads use GitHub's normal download links, which don't count against the limit either.
+- A signed-in GitHub CLI is found on macOS too (Homebrew), so the Hub can use its higher limit.
+
 ## 1.6.1 — 2026-10-23
 - Only app versions (tags like v1.2.3) count as releases, so other downloads in an app's repository (Viewer Studio's FFmpeg) never show up as a version.
 
