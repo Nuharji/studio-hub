@@ -443,6 +443,8 @@ async fn github_releases(repo: String) -> Result<Vec<Release>, String> {
         let mut out: Vec<Release> = list
             .iter()
             .filter(|r| !r["draft"].as_bool().unwrap_or(false))
+            // Only app versions (tags "v1.2.3"): a repository can have other releases too, e.g. Viewer Studio's FFmpeg.
+            .filter(|r| r["tag_name"].as_str().and_then(|t| t.strip_prefix('v')).is_some_and(|v| v.starts_with(|c: char| c.is_ascii_digit())))
             .map(|r| {
                 let assets: Vec<Asset> = r["assets"].as_array().map(|a| a.iter().map(|x| Asset {
                     name: x["name"].as_str().unwrap_or_default().to_string(),

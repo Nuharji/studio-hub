@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.6.1 — 2026-10-23
+- Only app versions (tags like v1.2.3) count as releases, so other downloads in an app's repository (Viewer Studio's FFmpeg) never show up as a version.
+
 ## 1.6.0 — 2026-10-18
 - New in the catalog: **Viewer Studio** (Pre-Alpha) — look at photos, videos, music and 3D models (STL, OBJ, GLB, 3MF), with sizes and volume for 3D printing.
 - Fixed: the “Pre-Alpha” label broke into two lines next to longer app names.
