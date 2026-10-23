@@ -287,6 +287,8 @@ function settingsMenu() {
     {id: 'autoHide|', label: t('autoHide'), checked: !!settings.autoHide}, null,
     {id: 'workFolder|', label: workFolder() ? t('workFolderIs', {p: workFolder()}) : t('workFolderPick')},
     {id: 'workFolderClear|', label: t('workFolderClear'), enabled: !!workFolder()}, null,
+    {id: 'syncFolder|', label: syncFolder() ? t('syncFolderIs', {p: syncFolder()}) : t('syncFolderPick')},
+    {id: 'syncFolderClear|', label: t('syncFolderClear'), enabled: !!syncFolder()}, null,
     {id: 'github|', label: 'github.com/Nuharji'}, {id: `history|${SELF}`, label: t('selfHistory')}, {id: 'about|', label: t('about')}
   ];
 }
@@ -309,6 +311,14 @@ async function act(action, name) {
       break;
     }
     case 'workFolderClear': window.Shared && Shared.push({workFolder: null}); toast(t('workFolderCleared')); break;
+    // The sync folder (e.g. in iCloud Drive, OneDrive, Dropbox): apps with their own data keep it there (Plan Studio's plan),
+    // so two computers with the same folder share it.
+    case 'syncFolder': {
+      const p = await invoke('pick_folder');
+      if (p) { window.Shared && Shared.push({syncFolder: p}); toast(t('syncFolderSet', {p})); }
+      break;
+    }
+    case 'syncFolderClear': window.Shared && Shared.push({syncFolder: null}); toast(t('syncFolderCleared')); break;
     case 'autoHide': settings.autoHide = !settings.autoHide; save(); if (window.AutoHide) AutoHide.set(settings.autoHide); break;
     case 'github': invoke('open_url', {url: 'https://github.com/Nuharji'}); break;
     case 'about': toast(t('aboutText', {v: ownVersion})); break;
@@ -333,6 +343,7 @@ if (window.Native) {
 }
 /* Theme, language and work folder are shared by all Studio apps (shared.js / shared.rs). */
 const workFolder = () => (window.Shared && Shared.values.workFolder) || '';
+const syncFolder = () => (window.Shared && Shared.values.syncFolder) || '';
 const sharePush = () => { if (window.Shared) Shared.push({theme: settings.theme, lang: settings.lang}); };
 function applyLang() {
   lang = settings.lang === 'auto' ? ((navigator.language || 'en').toLowerCase().startsWith('de') ? 'de' : 'en') : settings.lang;

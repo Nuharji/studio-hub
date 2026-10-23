@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.7.0 — 2026-10-24
+- New: sync folder for two computers (settings menu → "Sync folder for two computers…"). Choose the same folder — e.g. in
+  iCloud Drive, OneDrive or Dropbox — on both computers: Plan Studio keeps its plan there (from 0.9.0), so both computers
+  have the same timetable, homework and grades. Tip: put the work folder there too, then your files are on both as well.
+
 ## 1.6.2 — 2026-10-23
 - Fixed: "GitHub rate limit reached". GitHub allows 60 requests an hour per internet connection without signing in, and
   the Hub asked again for every app each time its window came to the front. Now the release lists are kept on disk: a

@@ -65,5 +65,10 @@
   "workFolderClear": "Reset work folder",
   "workFolderSet": "All Studio apps now open and save in {p}.",
   "workFolderCleared": "The apps open and save in their usual folders again.",
-  "rateLimit": "GitHub's limit for this internet connection is used up — the app list comes back at {time}."
+  "rateLimit": "GitHub's limit for this internet connection is used up — the app list comes back at {time}.",
+  "syncFolderPick": "Sync folder for two computers…",
+  "syncFolderIs": "Sync folder: {p}",
+  "syncFolderClear": "Stop syncing",
+  "syncFolderSet": "Plan Studio keeps its plan in {p} from its next start — choose the same folder on your other computer (e.g. in iCloud Drive, OneDrive or Dropbox). Tip: put the work folder there too, then your files are on both computers as well.",
+  "syncFolderCleared": "Plan Studio keeps its plan on this computer again (from its next start)."
 }
