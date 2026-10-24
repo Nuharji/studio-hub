@@ -137,8 +137,17 @@ function card(name) {
   const pinned = isPinned(name);
   const pin = `<button class="pin${pinned ? ' on' : ''}" data-act="${pinned ? 'unpin' : 'pin'}" data-name="${esc(name)}" title="${esc(t(pinned ? 'unpin' : 'pin'))}">${PIN_SVG}</button>`;
   return `<article class="card" data-name="${esc(name)}" draggable="true">${tile(name).replace('<img ', `<img title="${esc(t('dragTip'))}" `)}
-    <div class="info"><h2>${esc(name)}${stageOf(name) ? ` <span class="tag stage">${esc(t(stageOf(name)))}</span>` : ''}${pin}</h2><p>${esc(c[lang] || c.en || '')}</p><div class="status">${status}</div></div>
+    <div class="info"><h2>${esc(name)}${stageOf(name) ? ` <span class="tag stage">${esc(t(stageOf(name)))}</span>` : ''}${pin}</h2><p>${esc(c[lang] || c.en || '')}</p><div class="status">${status}</div>${name === 'Agent Studio' ? agentLine() : ''}</div>
     <div class="actions">${actions}</div></article>`;
+}
+/* Agent Studio's state (agentlink.js reads its status.json): what needs you, what runs, what it did today. */
+let agentKey = '';
+function agentLine() {
+  const st = window.AgentLink && AgentLink.status; if (!st) return '';
+  const from = new Date().setHours(0, 0, 0, 0), done = (st.done || []).filter(x => x.ended >= from).length, run = (st.running || []).length;
+  const parts = [st.needsYou ? `<span class="tag warn">${esc(t('agentNeeds', {n: st.needsYou}))}</span>` : '', run ? `<span class="tag">${esc(t('agentRunning', {n: run}))}</span>` : '',
+    done ? `<span class="meta-s">${esc(t('agentDone', {n: done}))}</span>` : ''].filter(Boolean);
+  return parts.length ? `<div class="status agent-line" title="${esc((st.items || []).map(x => x.title).join('\n'))}">${parts.join('')}</div>` : '';
 }
 const PIN_SVG = '<svg viewBox="0 0 24 24"><path d="M12 17v5"/><path d="M9 3h6l-1 6 4 4v2H6v-2l4-4z"/></svg>';
 
@@ -450,6 +459,10 @@ if (window.AutoHide) { AutoHide.init({top: ['header']}); AutoHide.set(settings.a
     applyLang(); save(); render();
   }});
   applyLang(); render(); sharePush();
+  if (window.AgentLink) AgentLink.init({app: 'Studio Hub', lang: () => lang, onStatus: st => {
+    const k = st ? [st.needsYou, (st.running || []).length, (st.done || []).length].join('|') : '';
+    if (k !== agentKey) { agentKey = k; render(); }
+  }});
   if (invoke) {
     ownVersion = await window.__TAURI__.app.getVersion().catch(() => '');
     platform = await invoke('platform').catch(() => 'windows');

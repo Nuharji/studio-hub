@@ -79,5 +79,8 @@
   "resetOrder": "Reihenfolge zurücksetzen",
   "pinHint": "Ziehe eine App hierher, um sie anzupinnen",
   "unpinHint": "Ziehe eine App hierher, um sie zu lösen",
-  "dragTip": "Ziehen, um die Reihenfolge zu ändern"
+  "dragTip": "Ziehen, um die Reihenfolge zu ändern",
+  "agentNeeds": "{n} brauchen dich",
+  "agentRunning": "{n} läuft",
+  "agentDone": "heute {n} erledigt"
 }

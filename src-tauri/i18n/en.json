@@ -79,5 +79,8 @@
   "resetOrder": "Reset order",
   "pinHint": "Drag an app here to pin it",
   "unpinHint": "Drag an app here to unpin it",
-  "dragTip": "Drag to change the order"
+  "dragTip": "Drag to change the order",
+  "agentNeeds": "{n} need you",
+  "agentRunning": "{n} running",
+  "agentDone": "{n} done today"
 }

@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.10.0 — 2026-10-24
+- The Agent Studio card shows what needs you, what runs and what was done today (needs Agent Studio 0.8 or later).
+
 ## 1.9.0 — 2026-10-24
 - Your own order: drag an app card to another place, or use "Move up" / "Move down" in its ⋯ menu (also on right-click).
   "Reset order" goes back to the standard order. New apps join at the end.
