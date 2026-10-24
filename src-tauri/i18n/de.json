@@ -70,5 +70,14 @@
   "syncFolderIs": "Sync-Ordner: {p}",
   "syncFolderClear": "Sync-Ordner zurücksetzen",
   "syncFolderSet": "Plan Studio speichert seinen Plan ab dem nächsten Start in {p} — wähle auf deinem anderen Computer denselben Ordner (z. B. in iCloud Drive, OneDrive oder Dropbox). Tipp: Lege auch den Arbeitsordner dorthin, dann sind deine Dateien ebenfalls auf beiden Computern.",
-  "syncFolderCleared": "Plan Studio speichert seinen Plan wieder auf diesem Computer (ab dem nächsten Start)."
+  "syncFolderCleared": "Plan Studio speichert seinen Plan wieder auf diesem Computer (ab dem nächsten Start).",
+  "pinned": "Angepinnt",
+  "pin": "Oben anpinnen",
+  "unpin": "Lösen",
+  "moveUp": "Nach vorne",
+  "moveDown": "Nach hinten",
+  "resetOrder": "Reihenfolge zurücksetzen",
+  "pinHint": "Ziehe eine App hierher, um sie anzupinnen",
+  "unpinHint": "Ziehe eine App hierher, um sie zu lösen",
+  "dragTip": "Ziehen, um die Reihenfolge zu ändern"
 }

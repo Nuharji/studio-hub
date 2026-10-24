@@ -66,6 +66,17 @@ main{flex:1;overflow:auto;padding:22px 26px 32px}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(420px,1fr));gap:14px;margin-bottom:26px}
 .card{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:16px;align-items:center;padding:16px 16px 16px 18px;background:var(--card);border:1px solid var(--card-border);border-radius:12px}
 .card.soon{opacity:.8}
+/* Order and pins: cards are dragged between and within the groups; an empty group only shows while dragging. */
+.group .card[draggable="true"]{cursor:grab}
+.card.dragged{opacity:.45;outline:2px dashed var(--accent);outline-offset:-2px}
+body:not(.dragging) .group:not(:has(.card)){display:none}
+.drop-hint{display:none;grid-column:1/-1;padding:22px;text-align:center;color:var(--dim);border:1px dashed var(--accent2);border-radius:12px}
+.group:not(:has(.card)) .drop-hint{display:block}
+.pin{background:none;border:0;padding:0 2px;margin-left:4px;vertical-align:-2px;color:var(--dim);opacity:0;cursor:default}
+.pin svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.card:hover .pin,.pin:focus-visible{opacity:1}
+.pin:hover{color:var(--strong)}
+.pin.on{opacity:1;color:var(--accent)}.pin.on svg{fill:currentColor}
 .tile{width:64px;height:64px;border-radius:22.5%;display:grid;place-items:center;color:#fff;font-weight:800;font-size:25px;letter-spacing:-.03em;box-shadow:0 6px 16px rgba(0,0,0,.25)}
 .tile.icon{background:none;border-radius:0;box-shadow:none;object-fit:contain;transform:scale(1.14);filter:drop-shadow(0 5px 10px rgba(0,0,0,.28))}
 .info h2{margin:0 0 2px;font-size:15px;font-weight:650;color:var(--strong)}
@@ -112,8 +123,8 @@ main{flex:1;overflow:auto;padding:22px 26px 32px}
 </header>
 <main>
   <div class="self-update" id="selfUpdate" hidden></div>
-  <div class="sect" id="appsTitle"></div>
-  <div class="grid" id="apps"></div>
+  <section class="group" data-group="pinned"><div class="sect" id="pinnedTitle"></div><div class="grid" id="pinned"></div></section>
+  <section class="group" data-group="apps"><div class="sect" id="appsTitle"></div><div class="grid" id="apps"></div></section>
   <div class="sect" id="soonTitle"></div>
   <div class="grid" id="soon"></div>
 </main>

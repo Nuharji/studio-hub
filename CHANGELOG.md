@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.9.0 — 2026-10-24
+- Your own order: drag an app card to another place, or use "Move up" / "Move down" in its ⋯ menu (also on right-click).
+  "Reset order" goes back to the standard order. New apps join at the end.
+- Pin apps: the pin next to an app's name (it shows when the mouse is over the card) or "Pin to the top" in the menu puts
+  the app in a "Pinned" group at the top. Drag apps into or out of that group to pin or unpin them; pinned apps can be
+  ordered too. Order and pins are kept on this computer.
+
 ## 1.8.1 — 2026-10-24
 - Agent Studio shows its icon (it was missing); the icons of Slides, Plan and Viewer Studio are the new ones (fading from
   dark at the top left to lighter at the bottom right).

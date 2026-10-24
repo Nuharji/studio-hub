@@ -58,7 +58,7 @@ function toast(msg, error = false) {
 
 /* ================= State =================
    releases: GitHub releases per app · installed: what is installed on this computer */
-let releases = {}, githubErrors = {}, installed = {}, busy = {};
+let releases = {}, githubErrors = {}, installed = {}, busy = {}, drag = null;   // drag: the card being dragged
 const repoOf = name => (CATALOG[name] || (name === SELF ? {repo: 'studio-hub'} : {})).repo;
 /* force: the refresh button (Rust still asks GitHub only "has it changed?", which doesn't use up its hourly limit). */
 async function fetchReleases(force = false) {
@@ -102,7 +102,7 @@ function stateOf(name) {
 /* ================= Rendering ================= */
 /* The app's own icon (ui/icons/<code>.png, the same picture as the installed app); apps without one get a letter tile. */
 function tile(name, c = CATALOG[name] || {code: name.replace(/[^A-Za-z]/g, '').slice(0, 2), g: ['#555', '#888']}) {
-  if (CATALOG[name]) return `<img class="tile icon" src="icons/${esc(c.code.toLowerCase())}.png" alt="">`;
+  if (CATALOG[name]) return `<img class="tile icon" src="icons/${esc(c.code.toLowerCase())}.png" alt="" draggable="false">`;
   const code = c.code.charAt(0).toUpperCase() + c.code.slice(1).toLowerCase();
   // Dark themes show the dark fade, light themes the light fade (same as each app's own logo).
   const g = c.gl && (settings.theme === 'light' || settings.theme === 'github') ? c.gl : c.g;
@@ -134,18 +134,58 @@ function card(name) {
   else if (st === 'installed') actions = btn('open', 'open', true, !inst.exe) + `<div class="row">${btn('more', '⋯')}</div>`;
   else if (st === 'available') actions = btn('install', 'install', true) + `<div class="row">${btn('portable', 'portable', false, !portable)}${btn('more', '⋯')}</div>`;
   else actions = `<button class="btn primary" disabled>${esc(t('install'))}</button><div class="row">${btn('more', '⋯')}</div>`;
-  return `<article class="card" data-name="${esc(name)}">${tile(name)}
-    <div class="info"><h2>${esc(name)}${stageOf(name) ? ` <span class="tag stage">${esc(t(stageOf(name)))}</span>` : ''}</h2><p>${esc(c[lang] || c.en || '')}</p><div class="status">${status}</div></div>
+  const pinned = isPinned(name);
+  const pin = `<button class="pin${pinned ? ' on' : ''}" data-act="${pinned ? 'unpin' : 'pin'}" data-name="${esc(name)}" title="${esc(t(pinned ? 'unpin' : 'pin'))}">${PIN_SVG}</button>`;
+  return `<article class="card" data-name="${esc(name)}" draggable="true">${tile(name).replace('<img ', `<img title="${esc(t('dragTip'))}" `)}
+    <div class="info"><h2>${esc(name)}${stageOf(name) ? ` <span class="tag stage">${esc(t(stageOf(name)))}</span>` : ''}${pin}</h2><p>${esc(c[lang] || c.en || '')}</p><div class="status">${status}</div></div>
     <div class="actions">${actions}</div></article>`;
 }
+const PIN_SVG = '<svg viewBox="0 0 24 24"><path d="M12 17v5"/><path d="M9 3h6l-1 6 4 4v2H6v-2l4-4z"/></svg>';
+
+/* ================= Order & pins =================
+   Kept on this computer: settings.order is the user's order of all apps, settings.pinned the pinned apps (shown on top,
+   in their own order). Apps that are new in the catalog go to the end. */
+const appNames = () => Object.keys(CATALOG).filter(n => n !== SELF);
+function appOrder() {
+  const names = appNames(), known = [...new Set(settings.order || [])].filter(n => names.includes(n));
+  return [...known, ...names.filter(n => !known.includes(n))];
+}
+const pinnedApps = () => [...new Set(settings.pinned || [])].filter(n => CATALOG[n] && n !== SELF);
+const isPinned = name => pinnedApps().includes(name);
+const unpinnedApps = () => appOrder().filter(n => !isPinned(n));
+function setPinned(name, on) {
+  const pins = pinnedApps().filter(n => n !== name);
+  settings.pinned = on ? [...pins, name] : pins;
+  save(); render();
+}
+/* One step forwards (-1) or backwards (+1) within the app's group. */
+function moveApp(name, delta) {
+  const pinned = isPinned(name), list = pinned ? pinnedApps() : unpinnedApps();
+  const i = list.indexOf(name), j = i + delta;
+  if (i < 0 || j < 0 || j >= list.length) return;
+  if (pinned) { [list[i], list[j]] = [list[j], list[i]]; settings.pinned = list; }
+  else { const o = appOrder(), a = o.indexOf(name), b = o.indexOf(list[j]); [o[a], o[b]] = [o[b], o[a]]; settings.order = o; }
+  save(); render();
+}
+/* After a drag: takes both groups as they are on screen. Pinned apps keep their place in the full order,
+   so an app that is unpinned later goes back to where it was. */
+function commitOrder() {
+  const names = id => $$(`#${id} .card[data-name]`).map(c => c.dataset.name);
+  const pins = names('pinned'), rest = names('apps'), queue = [...rest];
+  settings.pinned = pins;
+  settings.order = appOrder().map(n => rest.includes(n) ? queue.shift() : n);
+  save();
+}
+
 function render() {
+  if (drag) return;   // re-rendered when the drag ends
   document.documentElement.lang = lang;
   document.documentElement.dataset.theme = settings.theme;
   $('#tagline').textContent = t('tagline');
   $('#refreshBtn').title = t('refresh'); $('#menuBtn').title = t('menu');
-  $('#appsTitle').textContent = t('apps'); $('#soonTitle').textContent = t('soon');
-  const names = Object.keys(CATALOG).filter(n => n !== SELF);
-  $('#apps').innerHTML = names.length ? names.map(card).join('') : `<div class="empty">${t('noApps')}</div>`;
+  $('#pinnedTitle').textContent = t('pinned'); $('#appsTitle').textContent = t('apps'); $('#soonTitle').textContent = t('soon');
+  $('#pinned').innerHTML = pinnedApps().map(card).join('') + `<div class="drop-hint">${esc(t('pinHint'))}</div>`;
+  $('#apps').innerHTML = unpinnedApps().map(card).join('') + `<div class="drop-hint">${esc(t('unpinHint'))}</div>`;
   const soon = SOON.filter(s => !best(s.name));
   $('#soonTitle').hidden = !soon.length;
   $('#soon').innerHTML = soon.map(s => `<article class="card soon">${tile(s.name, s)}
@@ -270,12 +310,17 @@ window.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); 
 function moreMenu(name) {
   const inst = installed[name], b = best(name);
   const portable = b && b.release.portable;
+  const pinned = isPinned(name), group = pinned ? pinnedApps() : unpinnedApps(), pos = group.indexOf(name);
   return [
     {id: `open|${name}`, label: t('open'), enabled: !!(inst && inst.exe)},
     {id: `install|${name}`, label: t(inst ? 'update' : 'install'), enabled: !!b && (!inst || cmpVer(b.version, inst.version) > 0)},
     {id: `portable|${name}`, label: t('portable'), enabled: !!portable}, null,
     {id: `history|${name}`, label: t('history'), enabled: !!repoOf(name)}, null,
-    {id: `reveal|${name}`, label: t('reveal'), enabled: !!(inst && inst.location)},
+    {id: `reveal|${name}`, label: t('reveal'), enabled: !!(inst && inst.location)}, null,
+    {id: `${pinned ? 'unpin' : 'pin'}|${name}`, label: t(pinned ? 'unpin' : 'pin')},
+    {id: `moveUp|${name}`, label: t('moveUp'), enabled: pos > 0},
+    {id: `moveDown|${name}`, label: t('moveDown'), enabled: pos >= 0 && pos < group.length - 1},
+    {id: `resetOrder|${name}`, label: t('resetOrder'), enabled: !!(settings.order && settings.order.length)},
     null,
     {id: `uninstall|${name}`, label: t('uninstall'), enabled: !!inst}
   ];
@@ -305,6 +350,11 @@ async function act(action, name) {
     case 'history': showHistory(name); break;
     case 'selfUpdate': await selfUpdate(); break;
     case 'reveal': if (inst) invoke('reveal', {path: inst.exe || inst.location}); break;
+    case 'pin': setPinned(name, true); break;
+    case 'unpin': setPinned(name, false); break;
+    case 'moveUp': moveApp(name, -1); break;
+    case 'moveDown': moveApp(name, 1); break;
+    case 'resetOrder': settings.order = []; save(); render(); break;
 
     case 'lang': settings.lang = name; applyLang(); save(); render(); sharePush(); break;
     case 'theme': settings.theme = name; save(); render(); sharePush(); break;
@@ -332,6 +382,37 @@ document.addEventListener('click', e => {
   if (!b || b.disabled) return;
   if (b.dataset.act === 'more') return showMenu(moreMenu(b.dataset.name));
   act(b.dataset.act, b.dataset.name);
+});
+/* Drag & drop: the card moves live between the other cards (reading order: rows top to bottom, left to right);
+   dropping it into the other group pins or unpins it. Esc or dropping outside puts everything back. */
+document.addEventListener('dragstart', e => {
+  const c = e.target.closest && e.target.closest('.group .card[data-name]');
+  if (!c || busy[c.dataset.name]) return;
+  drag = {name: c.dataset.name, el: c};
+  e.dataTransfer.effectAllowed = 'move';
+  e.dataTransfer.setData('text/plain', drag.name);
+  requestAnimationFrame(() => { if (drag) { c.classList.add('dragged'); document.body.classList.add('dragging'); } });
+});
+document.addEventListener('dragover', e => {
+  if (!drag) return;
+  const group = e.target.closest && e.target.closest('.group[data-group]');
+  if (!group) return;
+  e.preventDefault(); e.dataTransfer.dropEffect = 'move';
+  const grid = group.querySelector('.grid');
+  const before = [...grid.querySelectorAll('.card[data-name]')].filter(c => c !== drag.el).find(c => {
+    const r = c.getBoundingClientRect();
+    return e.clientY < r.top || (e.clientY <= r.bottom && e.clientX < r.left + r.width / 2);
+  }) || grid.querySelector('.drop-hint');
+  if (drag.el.parentNode !== grid || drag.el.nextElementSibling !== before) grid.insertBefore(drag.el, before);
+});
+document.addEventListener('drop', e => {
+  if (!drag || !(e.target.closest && e.target.closest('.group[data-group]'))) return;
+  e.preventDefault(); commitOrder();
+});
+document.addEventListener('dragend', () => {
+  if (!drag) return;
+  drag = null; document.body.classList.remove('dragging');
+  render();
 });
 $('#lib').onclick = () => act('github');
 $('#refreshBtn').onclick = () => scan(true);
