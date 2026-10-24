@@ -14,6 +14,7 @@ Every app works offline, without an account, in German and English — and Studi
 | [Slides Studio](https://github.com/Nuharji/slides-studio) | Presentations with layouts, designs, tables, presenter view and PowerPoint export *(Pre-Alpha)* | [Releases](https://github.com/Nuharji/slides-studio/releases) |
 | [Plan Studio](https://github.com/Nuharji/plan-studio) | School planner: timetable, homework, exams, grades, electives, study plans — also in your own calendar and on two computers | [Releases](https://github.com/Nuharji/plan-studio/releases) |
 | [Viewer Studio](https://github.com/Nuharji/viewer-studio) | Look at photos, videos, music and 3D models *(Pre-Alpha)* | [Releases](https://github.com/Nuharji/viewer-studio/releases) |
+| [Agent Studio](https://github.com/Nuharji/agent-studio) | Claude as your assistant: routines, your Markdown to-do list, approvals, live log and emergency stop *(Pre-Alpha, needs a Claude account)* | [Releases](https://github.com/Nuharji/agent-studio/releases) |
 | [Code Studio](https://github.com/Nuharji/code-studio) | Code editor *(Pre-Alpha, on hold)* | [Releases](https://github.com/Nuharji/code-studio/releases) |
 
 - UI: `ui/`, app catalog in `ui/app.js` (`CATALOG`)

@@ -25,6 +25,9 @@ const CATALOG = {
   'Viewer Studio': {code: 'Vw', g: ['#3B1D7A', '#8B5CF6'], gl: ['#7C3AED', '#C4B5FD'], repo: 'viewer-studio', stage: 'preAlpha',
     en: 'Look at photos, videos, music and 3D models (STL, OBJ, GLB, 3MF) — with sizes and volume for 3D printing.',
     de: 'Fotos, Videos, Musik und 3D-Modelle (STL, OBJ, GLB, 3MF) ansehen — mit Maßen und Volumen für den 3D-Druck.'},
+  'Agent Studio': {code: 'Ag', g: ['#05505E', '#1EC8DD'], gl: ['#0FB5CB', '#9AEFF9'], repo: 'agent-studio', stage: 'preAlpha',
+    en: 'Claude as your assistant: routines, your Markdown to-do list and approvals — you decide what it may do. Needs a Claude account.',
+    de: 'Claude als Assistent: Routinen, deine Markdown-To-do-Liste und Freigaben — du bestimmst, was es darf. Braucht ein Claude-Konto.'},
   'Code Studio': {code: 'Cd', g: ['#5A2A05', '#F58A1F'], gl: ['#EE7A12', '#FFC27E'], repo: 'code-studio', stage: 'preAlpha',
     en: 'IDE in the JetBrains style: projects, Search Everywhere, find in files, terminal, local history.',
     de: 'IDE im JetBrains-Stil: Projekte, Überall suchen, In Dateien suchen, Terminal, lokaler Verlauf.'}

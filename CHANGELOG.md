@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.8.0 — 2026-10-24
+- New in the catalog: Agent Studio (Pre-Alpha) — Claude as your assistant with routines, your Markdown to-do list and
+  approvals, under your control. Unlike the other apps it needs the internet and a Claude account.
+
 ## 1.7.1 — 2026-10-24
 - Plan Studio is stable (1.0) and no longer marked Pre-Alpha.
 

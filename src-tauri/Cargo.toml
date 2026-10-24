@@ -1,6 +1,6 @@
 [package]
 name = "studio-hub"
-version = "1.7.1"
+version = "1.8.0"
 description = "Launcher and installer for the Studio apps"
 edition = "2021"
 rust-version = "1.77"
