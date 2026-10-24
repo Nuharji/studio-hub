@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.8.1 — 2026-10-24
+- Agent Studio shows its icon (it was missing); the icons of Slides, Plan and Viewer Studio are the new ones (fading from
+  dark at the top left to lighter at the bottom right).
+
 ## 1.8.0 — 2026-10-24
 - New in the catalog: Agent Studio (Pre-Alpha) — Claude as your assistant with routines, your Markdown to-do list and
   approvals, under your control. Unlike the other apps it needs the internet and a Claude account.
