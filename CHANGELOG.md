@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.11.0 — 2026-10-30
+- New: Layouts, next to the themes (settings menu; shared by all Studio apps, any layout goes with any theme). **Adobe** is the look so far; **Modern** has rounded, floating panels and more room; **Custom** is yours: panels and tool rail left or right, density, corners, floating panels, status bar.
+
 ## 1.10.0 — 2026-10-24
 - The Agent Studio card shows what needs you, what runs and what was done today (needs Agent Studio 0.8 or later).
 

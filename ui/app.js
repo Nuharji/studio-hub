@@ -341,6 +341,8 @@ function settingsMenu() {
     {id: 'lang|en', label: `${t('language')}: English`, checked: settings.lang === 'en'},
     {id: 'lang|de', label: `${t('language')}: Deutsch`, checked: settings.lang === 'de'}, null,
     ...th.map(([v, k]) => ({id: `theme|${v}`, label: `${t('theme')}: ${t(k)}`, checked: settings.theme === v})), null,
+    ...(window.Shared ? Shared.layoutNames().map(l => ({id: `layout|${l.id}`, label: `${Shared.layoutLabel()}: ${l.label}`, checked: Shared.layout === l.id})) : []),
+    {id: 'layoutEdit|', label: `${window.Shared ? Shared.layoutLabel() : ''}…`}, null,
     {id: 'autoHide|', label: t('autoHide'), checked: !!settings.autoHide}, null,
     {id: 'workFolder|', label: workFolder() ? t('workFolderIs', {p: workFolder()}) : t('workFolderPick')},
     {id: 'workFolderClear|', label: t('workFolderClear'), enabled: !!workFolder()}, null,
@@ -367,6 +369,13 @@ async function act(action, name) {
 
     case 'lang': settings.lang = name; applyLang(); save(); render(); sharePush(); break;
     case 'theme': settings.theme = name; save(); render(); sharePush(); break;
+    case 'layout': Shared.setLayout(name); render(); break;
+    case 'layoutEdit':
+      $('#modalTitle').textContent = Shared.layoutLabel();
+      $('#modalBody').onclick = null;
+      $('#modalBody').innerHTML = Shared.layoutHeading();
+      $('#modal').hidden = false;
+      break;
     case 'workFolder': {
       const p = await invoke('pick_folder');
       if (p) { window.Shared && Shared.push({workFolder: p}); toast(t('workFolderSet', {p})); }
