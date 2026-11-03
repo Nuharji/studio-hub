@@ -2,6 +2,8 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 mod agentlink;
+mod mcp;
+mod mcp_tools;
 mod shared;
 
 use serde::{Deserialize, Serialize};
@@ -699,6 +701,7 @@ fn texts() -> serde_json::Value {
 }
 
 fn main() {
+    if mcp::wanted() { return mcp_tools::run(); }
     tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_opener::init())

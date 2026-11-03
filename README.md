@@ -20,6 +20,33 @@ Every app works offline, without an account, in German and English — and Studi
 - UI: `ui/`, app catalog in `ui/app.js` (`CATALOG`)
 - Native backend: `src-tauri/src/main.rs` (library scan, Windows uninstall registry, silent NSIS install/uninstall)
 
+## MCP
+Studio Hub is also an MCP server, so Claude (Desktop or Code), ChatGPT and other MCP clients can use what it can do:
+started with `--mcp`, the program opens no window and speaks MCP on stdin / stdout until the client closes it.
+
+- `list_apps` — The Studio apps installed on this computer, with their versions.
+- `open_app` — Starts an installed Studio app, or brings it to the front.
+- `shared_settings` — The settings all Studio apps share: theme, layout, language, work folder, sync folder.
+
+Installing and removing apps stay with the window; the shared settings are only read.
+
+Claude Code: `claude mcp add studio-hub -- "/Applications/Studio Hub.app/Contents/MacOS/studio-hub" --mcp`.
+Claude Desktop (`claude_desktop_config.json`):
+```json
+{
+  "mcpServers": {
+    "studio-hub": {
+      "command": "/Applications/Studio Hub.app/Contents/MacOS/studio-hub",
+      "args": [
+        "--mcp"
+      ]
+    }
+  }
+}
+```
+The program is `/Applications/Studio Hub.app/Contents/MacOS/studio-hub` on macOS, `studio-hub.exe` in the install folder on
+Windows, and `studio-hub` (or the AppImage) on Linux.
+
 ## Build (Windows x64)
 
 ```powershell

@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.12.0 — 2026-11-03
+- New: MCP server. Started with `--mcp`, Studio Hub opens no window and lets Claude, ChatGPT and other MCP clients use it: `list_apps`, `open_app`, `shared_settings`. Installing and removing apps stay with the window; the shared settings are only read. Setup: see README → MCP.
+
 ## 1.11.0 — 2026-10-30
 - New: Layouts, next to the themes (settings menu; shared by all Studio apps, any layout goes with any theme). **Adobe** is the look so far; **Modern** has rounded, floating panels and more room; **Custom** is yours: panels and tool rail left or right, density, corners, floating panels, status bar.
 
