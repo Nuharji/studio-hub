@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.12.1 — 2026-11-03
+- Fix (macOS): the app no longer asks again and again for access to your Documents folder (or Desktop, Downloads). The app is now signed as a whole, so macOS can remember your answer. After an update, macOS may ask once more.
+- Installing an older app version that isn't signed this way: the Hub signs it on the Mac after copying, so it doesn't keep asking either.
+
 ## 1.12.0 — 2026-11-03
 - New: MCP server. Started with `--mcp`, Studio Hub opens no window and lets Claude, ChatGPT and other MCP clients use it: `list_apps`, `open_app`, `shared_settings`. Installing and removing apps stay with the window; the shared settings are only read. Setup: see README → MCP.
 

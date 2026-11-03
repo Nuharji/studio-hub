@@ -259,11 +259,25 @@ fn install_impl(setup: &str, _product: &str, _version: &str) -> Result<(), Strin
         }
         let mut copy = Command::new("ditto");
         copy.arg(&app).arg(&target);
-        run_and_wait(copy)
+        run_and_wait(copy)?;
+        sign_if_unsealed(&target);
+        Ok(())
     })();
     let _ = Command::new("hdiutil").args(["detach", "-quiet"]).arg(&mount).status();
     let _ = fs::remove_dir(&mount);
     result
+}
+
+/// Older releases carry only the linker's signature (no sealed Info.plist, no designated
+/// resources), so macOS can't remember a folder permission and asks again on every access.
+/// Those get a proper ad-hoc bundle signature; properly signed apps are left alone.
+#[cfg(target_os = "macos")]
+fn sign_if_unsealed(app: &Path) {
+    let Ok(out) = Command::new("codesign").arg("-dv").arg(app).output() else { return };
+    let text = String::from_utf8_lossy(&out.stderr);
+    if text.contains("linker-signed") || text.contains("Info.plist=not bound") {
+        let _ = Command::new("codesign").args(["--force", "--deep", "-s", "-"]).arg(app).status();
+    }
 }
 
 /// Linux: keep the AppImage in the Hub's app folder and add it to the application menu.
