@@ -105,7 +105,7 @@ function tile(name, c = CATALOG[name] || {code: name.replace(/[^A-Za-z]/g, '').s
   if (CATALOG[name]) return `<img class="tile icon" src="icons/${esc(c.code.toLowerCase())}.png" alt="" draggable="false">`;
   const code = c.code.charAt(0).toUpperCase() + c.code.slice(1).toLowerCase();
   // Dark themes show the dark fade, light themes the light fade (same as each app's own logo).
-  const g = c.gl && (settings.theme === 'light' || settings.theme === 'github') ? c.gl : c.g;
+  const g = c.gl && ['light', 'github', 'sand', 'rose'].includes(settings.theme) ? c.gl : c.g;
   return `<div class="tile" style="background:linear-gradient(135deg,${g[0]},${g[1]})">${esc(code)}</div>`;
 }
 /* Apps before version 1.0 are marked Pre-Alpha (from the newest release, else the installed version);
@@ -335,7 +335,7 @@ function moreMenu(name) {
   ];
 }
 function settingsMenu() {
-  const th = [['dark', 'themeDark'], ['light', 'themeLight'], ['github', 'themeGithub'], ['github-dark', 'themeGithubDark'], ['cli', 'themeCli']];
+  const th = [['dark', 'themeDark'], ['light', 'themeLight'], ['github', 'themeGithub'], ['github-dark', 'themeGithubDark'], ['cli', 'themeCli'], ['midnight', 'themeMidnight'], ['dusk', 'themeDusk'], ['graphite', 'themeGraphite'], ['contrast', 'themeContrast'], ['sand', 'themeSand'], ['rose', 'themeRose']];
   return [
     {id: 'lang|auto', label: `${t('language')}: ${t('sysLang')}`, checked: settings.lang === 'auto'},
     {id: 'lang|en', label: `${t('language')}: English`, checked: settings.lang === 'en'},
@@ -462,7 +462,7 @@ if (window.Native) {
 const workFolder = () => (window.Shared && Shared.values.workFolder) || '';
 const syncFolder = () => (window.Shared && Shared.values.syncFolder) || '';
 /* Studio Hub → Design pro App: every app (with shared settings) either like the hub or with its own theme / layout. */
-const PER_APP_THEMES = [['dark', 'themeDark'], ['light', 'themeLight'], ['github', 'themeGithub'], ['github-dark', 'themeGithubDark'], ['cli', 'themeCli']];
+const PER_APP_THEMES = [['dark', 'themeDark'], ['light', 'themeLight'], ['github', 'themeGithub'], ['github-dark', 'themeGithubDark'], ['cli', 'themeCli'], ['midnight', 'themeMidnight'], ['dusk', 'themeDusk'], ['graphite', 'themeGraphite'], ['contrast', 'themeContrast'], ['sand', 'themeSand'], ['rose', 'themeRose']];
 function perAppBody() {
   const apps = Shared.apps, opt = (v, label, cur) => `<option value="${v}"${v === (cur || '') ? ' selected' : ''}>${esc(label)}</option>`;
   const rows = Object.keys(CATALOG).filter(n => n !== 'Code Studio').map(n => {
