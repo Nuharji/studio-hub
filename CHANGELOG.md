@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.16.0 — 2026-11-05
+- New: four more CLI themes with other accent colors — CLI Amber, CLI Cyan, CLI Magenta and CLI White (black, monospace, square, like CLI (Terminal), just not green). Choose them like the other themes (Settings → Appearance or Settings menu → Theme; in the hub also in Theme per app).
+
 ## 1.15.0 — 2026-11-05
 - New: six themes — Midnight (navy, blue), Dusk (plum, violet), Graphite (neutral gray, orange), High contrast (black, white, yellow — easy to read), Sand (warm beige, terracotta) and Rosé (soft pink, raspberry).
 - New: two layouts — **Focus** (roomy, no status bar, bars and panels without lines, the tool rail fades until you point at it) and **Mirrored** (panels on the left, tool rail on the right). Choose them in the settings menu (Theme / Layout) and in Theme per app.

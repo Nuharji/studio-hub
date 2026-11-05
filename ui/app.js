@@ -335,7 +335,7 @@ function moreMenu(name) {
   ];
 }
 function settingsMenu() {
-  const th = [['dark', 'themeDark'], ['light', 'themeLight'], ['github', 'themeGithub'], ['github-dark', 'themeGithubDark'], ['cli', 'themeCli'], ['midnight', 'themeMidnight'], ['dusk', 'themeDusk'], ['graphite', 'themeGraphite'], ['contrast', 'themeContrast'], ['sand', 'themeSand'], ['rose', 'themeRose']];
+  const th = [['dark', 'themeDark'], ['light', 'themeLight'], ['github', 'themeGithub'], ['github-dark', 'themeGithubDark'], ['cli', 'themeCli'], ['cli-amber', 'themeCliAmber'], ['cli-cyan', 'themeCliCyan'], ['cli-magenta', 'themeCliMagenta'], ['cli-white', 'themeCliWhite'], ['midnight', 'themeMidnight'], ['dusk', 'themeDusk'], ['graphite', 'themeGraphite'], ['contrast', 'themeContrast'], ['sand', 'themeSand'], ['rose', 'themeRose']];
   return [
     {id: 'lang|auto', label: `${t('language')}: ${t('sysLang')}`, checked: settings.lang === 'auto'},
     {id: 'lang|en', label: `${t('language')}: English`, checked: settings.lang === 'en'},
@@ -462,7 +462,7 @@ if (window.Native) {
 const workFolder = () => (window.Shared && Shared.values.workFolder) || '';
 const syncFolder = () => (window.Shared && Shared.values.syncFolder) || '';
 /* Studio Hub → Design pro App: every app (with shared settings) either like the hub or with its own theme / layout. */
-const PER_APP_THEMES = [['dark', 'themeDark'], ['light', 'themeLight'], ['github', 'themeGithub'], ['github-dark', 'themeGithubDark'], ['cli', 'themeCli'], ['midnight', 'themeMidnight'], ['dusk', 'themeDusk'], ['graphite', 'themeGraphite'], ['contrast', 'themeContrast'], ['sand', 'themeSand'], ['rose', 'themeRose']];
+const PER_APP_THEMES = [['dark', 'themeDark'], ['light', 'themeLight'], ['github', 'themeGithub'], ['github-dark', 'themeGithubDark'], ['cli', 'themeCli'], ['cli-amber', 'themeCliAmber'], ['cli-cyan', 'themeCliCyan'], ['cli-magenta', 'themeCliMagenta'], ['cli-white', 'themeCliWhite'], ['midnight', 'themeMidnight'], ['dusk', 'themeDusk'], ['graphite', 'themeGraphite'], ['contrast', 'themeContrast'], ['sand', 'themeSand'], ['rose', 'themeRose']];
 function perAppBody() {
   const apps = Shared.apps, opt = (v, label, cur) => `<option value="${v}"${v === (cur || '') ? ' selected' : ''}>${esc(label)}</option>`;
   const rows = Object.keys(CATALOG).filter(n => n !== 'Code Studio').map(n => {
