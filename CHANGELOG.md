@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.12.2 — 2026-11-05
+- New descriptions: Agent Studio is now for building apps with AI; Plan Studio has your school files and Claude for school.
+
 ## 1.12.1 — 2026-11-03
 - Fix (macOS): the app no longer asks again and again for access to your Documents folder (or Desktop, Downloads). The app is now signed as a whole, so macOS can remember your answer. After an update, macOS may ask once more.
 - Installing an older app version that isn't signed this way: the Hub signs it on the Mac after copying, so it doesn't keep asking either.
