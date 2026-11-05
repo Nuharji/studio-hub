@@ -26,7 +26,7 @@ started with `--mcp`, the program opens no window and speaks MCP on stdin / stdo
 
 - `list_apps` — The Studio apps installed on this computer, with their versions.
 - `open_app` — Starts an installed Studio app, or brings it to the front.
-- `shared_settings` — The settings all Studio apps share: theme, layout, language, work folder, sync folder.
+- `shared_settings` — The settings all Studio apps share: theme, layout, language, work folder, sync folder (and `apps`: the apps with their own theme / layout).
 
 Installing and removing apps stay with the window; the shared settings are only read.
 

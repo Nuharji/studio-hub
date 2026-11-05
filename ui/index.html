@@ -99,6 +99,11 @@ body:not(.dragging) .group:not(:has(.card)){display:none}
 .modal{width:min(680px,92vw);max-height:84vh;display:flex;flex-direction:column;background:var(--card);border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow)}
 .modal-head{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--border);font-size:15px;font-weight:650;color:var(--strong)}
 .modal-body{padding:6px 20px 18px;overflow:auto;user-select:text}
+.per-app{width:100%;border-collapse:collapse;margin-top:6px}
+.per-app th{text-align:left;font-weight:600;color:var(--dim,inherit);padding:6px 8px;border-bottom:1px solid var(--border)}
+.per-app td{padding:6px 8px;border-bottom:1px solid var(--border);white-space:nowrap}
+.per-app td .tile{width:22px;height:22px;vertical-align:middle;margin-right:6px;transform:none;filter:none}
+.per-app select{background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:5px;padding:3px 6px;font:inherit}
 .ver{padding:14px 0;border-bottom:1px solid var(--border)}
 .ver:last-child{border-bottom:0}
 .ver-head{display:flex;align-items:center;gap:8px;margin-bottom:6px}

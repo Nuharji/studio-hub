@@ -342,7 +342,8 @@ function settingsMenu() {
     {id: 'lang|de', label: `${t('language')}: Deutsch`, checked: settings.lang === 'de'}, null,
     ...th.map(([v, k]) => ({id: `theme|${v}`, label: `${t('theme')}: ${t(k)}`, checked: settings.theme === v})), null,
     ...(window.Shared ? Shared.layoutNames().map(l => ({id: `layout|${l.id}`, label: `${Shared.layoutLabel()}: ${l.label}`, checked: Shared.layout === l.id})) : []),
-    {id: 'layoutEdit|', label: `${window.Shared ? Shared.layoutLabel() : ''}…`}, null,
+    {id: 'layoutEdit|', label: `${window.Shared ? Shared.layoutLabel() : ''}…`},
+    {id: 'perApp|', label: t('perApp'), enabled: !!window.Shared}, null,
     {id: 'autoHide|', label: t('autoHide'), checked: !!settings.autoHide}, null,
     {id: 'workFolder|', label: workFolder() ? t('workFolderIs', {p: workFolder()}) : t('workFolderPick')},
     {id: 'workFolderClear|', label: t('workFolderClear'), enabled: !!workFolder()}, null,
@@ -374,6 +375,20 @@ async function act(action, name) {
       $('#modalTitle').textContent = Shared.layoutLabel();
       $('#modalBody').onclick = null;
       $('#modalBody').innerHTML = Shared.layoutHeading();
+      $('#modal').hidden = false;
+      break;
+    case 'perApp':
+      $('#modalTitle').textContent = t('perApp').replace(/…$/, '');
+      $('#modalBody').innerHTML = perAppBody();
+      $('#modalBody').onclick = null;
+      $('#modalBody').onchange = e => {
+        const sel = e.target.closest('select[data-per]'); if (!sel) return;
+        const id = sel.closest('tr').dataset.app, entry = {...(Shared.apps[id] || {})};
+        if (sel.value) entry[sel.dataset.per] = sel.value; else delete entry[sel.dataset.per];
+        if (sel.dataset.per === 'layout' && sel.value === 'custom' && !entry.layoutCustom && Shared.values.layoutCustom) entry.layoutCustom = Shared.values.layoutCustom;
+        if (sel.dataset.per === 'layout' && sel.value !== 'custom') delete entry.layoutCustom;
+        Shared.setApp(id, entry);
+      };
       $('#modal').hidden = false;
       break;
     case 'workFolder': {
@@ -446,6 +461,18 @@ if (window.Native) {
 /* Theme, language and work folder are shared by all Studio apps (shared.js / shared.rs). */
 const workFolder = () => (window.Shared && Shared.values.workFolder) || '';
 const syncFolder = () => (window.Shared && Shared.values.syncFolder) || '';
+/* Studio Hub → Design pro App: every app (with shared settings) either like the hub or with its own theme / layout. */
+const PER_APP_THEMES = [['dark', 'themeDark'], ['light', 'themeLight'], ['github', 'themeGithub'], ['github-dark', 'themeGithubDark']];
+function perAppBody() {
+  const apps = Shared.apps, opt = (v, label, cur) => `<option value="${v}"${v === (cur || '') ? ' selected' : ''}>${esc(label)}</option>`;
+  const rows = Object.keys(CATALOG).filter(n => n !== 'Code Studio').map(n => {
+    const id = CATALOG[n].code.toLowerCase(), e = apps[id] || {};
+    return `<tr data-app="${id}"><td>${tile(n)} ${esc(n)}</td>
+      <td><select data-per="theme">${opt('', t('likeHub'), e.theme)}${PER_APP_THEMES.map(([v, k]) => opt(v, t(k), e.theme)).join('')}</select></td>
+      <td><select data-per="layout">${opt('', t('likeHub'), e.layout)}${Shared.layoutNames().map(l => opt(l.id, l.label, e.layout)).join('')}</select></td></tr>`;
+  }).join('');
+  return `<p class="dim">${esc(t('perAppHint'))}</p><table class="per-app"><thead><tr><th>${esc(t('perAppName'))}</th><th>${esc(t('perAppTheme'))}</th><th>${esc(t('perAppLayout'))}</th></tr></thead><tbody>${rows}</tbody></table>`;
+}
 const sharePush = () => { if (window.Shared) Shared.push({theme: settings.theme, lang: settings.lang}); };
 function applyLang() {
   lang = settings.lang === 'auto' ? ((navigator.language || 'en').toLowerCase().startsWith('de') ? 'de' : 'en') : settings.lang;
@@ -462,7 +489,7 @@ if (window.AutoHide) { AutoHide.init({top: ['header']}); AutoHide.set(settings.a
 
 (async () => {
   if (invoke) I18N = await invoke('texts');
-  if (window.Shared) await Shared.init({apply: sh => {
+  if (window.Shared) await Shared.init({app: 'hub', apply: sh => {
     if (sh.theme) settings.theme = sh.theme;
     if (sh.lang) settings.lang = sh.lang;
     applyLang(); save(); render();

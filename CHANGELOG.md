@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.13.0 — 2026-11-05
+- New: **Theme per app** (settings menu): each Studio app can look like the hub or have its own theme and layout. Apps pick up a change when their window comes to the front.
+- Every app has the same switch in its settings (Appearance → "Like Studio Hub" / "Only for this app"). The language stays shared.
+
 ## 1.12.2 — 2026-11-05
 - New descriptions: Agent Studio is now for building apps with AI; Plan Studio has your school files and Claude for school.
 
