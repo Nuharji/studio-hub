@@ -51,6 +51,7 @@
   "themeLight": "Hell",
   "themeGithub": "GitHub",
   "themeGithubDark": "GitHub Dunkel",
+  "themeCli": "CLI (Terminal)",
   "perApp": "Design pro App…",
   "perAppHint": "Jede App kann aussehen wie Studio Hub oder ein eigenes Design und Layout haben. Eine App übernimmt die Änderung, sobald ihr Fenster nach vorne kommt; umschalten kannst du das auch in jeder App (Einstellungen → Darstellung).",
   "likeHub": "Wie im Hub",

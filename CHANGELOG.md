@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.14.0 — 2026-11-05
+- New: CLI theme and CLI layout. Theme "CLI (Terminal)": black, phosphor green, monospace, square corners. Layout "CLI": monospace font, compact, square and flat (no shadows) — goes with every theme. Choose them in the settings menu (Theme / Layout) and in Theme per app. The layout "Custom" also gets the new option Font → Monospace.
+
 ## 1.13.0 — 2026-11-05
 - New: **Theme per app** (settings menu): each Studio app can look like the hub or have its own theme and layout. Apps pick up a change when their window comes to the front.
 - Every app has the same switch in its settings (Appearance → "Like Studio Hub" / "Only for this app"). The language stays shared.

@@ -51,6 +51,7 @@
   "themeLight": "Light",
   "themeGithub": "GitHub",
   "themeGithubDark": "GitHub Dark",
+  "themeCli": "CLI (Terminal)",
   "perApp": "Theme per app…",
   "perAppHint": "Each app can look like Studio Hub or have its own theme and layout. Apps pick up a change when their window comes to the front; in each app you can switch this too (Settings → Appearance).",
   "likeHub": "Like Studio Hub",
