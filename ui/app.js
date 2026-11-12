@@ -463,13 +463,15 @@ const workFolder = () => (window.Shared && Shared.values.workFolder) || '';
 const syncFolder = () => (window.Shared && Shared.values.syncFolder) || '';
 /* Studio Hub → Design pro App: every app (with shared settings) either like the hub or with its own theme / layout. */
 const PER_APP_THEMES = [['dark', 'themeDark'], ['light', 'themeLight'], ['github', 'themeGithub'], ['github-dark', 'themeGithubDark'], ['cli', 'themeCli'], ['cli-amber', 'themeCliAmber'], ['cli-cyan', 'themeCliCyan'], ['cli-magenta', 'themeCliMagenta'], ['cli-white', 'themeCliWhite'], ['midnight', 'themeMidnight'], ['dusk', 'themeDusk'], ['graphite', 'themeGraphite'], ['contrast', 'themeContrast'], ['sand', 'themeSand'], ['rose', 'themeRose']];
+// The apps that already have a 3D view (layout „3D (Beta)“, room3d.js); the others look like Adobe with it.
+const ROOM_APPS = ['md', 'ag'];
 function perAppBody() {
   const apps = Shared.apps, opt = (v, label, cur) => `<option value="${v}"${v === (cur || '') ? ' selected' : ''}>${esc(label)}</option>`;
   const rows = Object.keys(CATALOG).filter(n => n !== 'Code Studio').map(n => {
     const id = CATALOG[n].code.toLowerCase(), e = apps[id] || {};
     return `<tr data-app="${id}"><td>${tile(n)} ${esc(n)}</td>
       <td><select data-per="theme">${opt('', t('likeHub'), e.theme)}${PER_APP_THEMES.map(([v, k]) => opt(v, t(k), e.theme)).join('')}</select></td>
-      <td><select data-per="layout">${opt('', t('likeHub'), e.layout)}${Shared.layoutNames().map(l => opt(l.id, l.label, e.layout)).join('')}</select></td></tr>`;
+      <td><select data-per="layout">${opt('', t('likeHub'), e.layout)}${Shared.layoutNames().filter(l => l.id !== 'room' || ROOM_APPS.includes(id) || e.layout === 'room').map(l => opt(l.id, l.label, e.layout)).join('')}</select></td></tr>`;
   }).join('');
   return `<p class="dim">${esc(t('perAppHint'))}</p><table class="per-app"><thead><tr><th>${esc(t('perAppName'))}</th><th>${esc(t('perAppTheme'))}</th><th>${esc(t('perAppLayout'))}</th></tr></thead><tbody>${rows}</tbody></table>`;
 }
@@ -506,3 +508,30 @@ if (window.AutoHide) { AutoHide.init({top: ['header']}); AutoHide.set(settings.a
   lastFocusScan = Date.now(); scan();
 })();
 window.__hub = {scan, act, doInstall, state: () => ({releases, githubErrors, installed, busy})};
+
+/* ================= 3D (Beta): the device shelf ================= */
+/* Layout „3D (Beta)“ (room3d.js): every Studio app is a device on the shelf — pinned apps on the top board. Green LED:
+   installed, amber: an update is waiting, blinking blue: busy, dark: not installed. A click starts an installed app (the
+   room stays); any other app is shown as its card in the normal window, where it can be installed. */
+const R3 = {
+  en: {title: 'Device shelf', pinned: 'Pinned', apps: 'Apps', off: 'not installed'},
+  de: {title: 'Geräte-Regal', pinned: 'Angepinnt', apps: 'Apps', off: 'nicht installiert'}
+};
+function shelfScene() {
+  const L = R3[lang] || R3.en;
+  const dev = name => {
+    const st = stateOf(name), inst = installed[name], c = CATALOG[name] || {};
+    return {id: name, label: name.replace(/ Studio$/, ''), icon: `icons/${c.code.toLowerCase()}.png`,
+      sub: st === 'busy' ? (busy[name] && busy[name].text) || '' : inst ? 'v' + inst.version + (st === 'update' ? ' → ' + best(name).version : '') : L.off,
+      state: {busy: 'running', update: 'attention', installed: 'on'}[st] || 'off'};
+  };
+  const pins = pinnedApps(), rest = unpinnedApps();
+  return {kind: 'shelf', item: 'device', groups: [{label: L.pinned, items: pins.map(dev)}, {label: L.apps, items: rest.map(dev)}]};
+}
+function shelfOpen(name) {
+  const inst = installed[name];
+  if (inst && inst.exe) { act('open', name); return 'stay'; }
+  const card = document.querySelector(`.card[data-name="${CSS.escape(name)}"]`);
+  if (card) requestAnimationFrame(() => { card.scrollIntoView({block: 'center', behavior: 'smooth'}); card.classList.add('r3-flash'); setTimeout(() => card.classList.remove('r3-flash'), 1600); });
+}
+if (window.Room3D) Room3D.register({data: shelfScene, open: shelfOpen, title: () => (R3[lang] || R3.en).title});

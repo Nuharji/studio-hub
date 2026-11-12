@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.17.0 — 2026-11-12
+- New (Beta): layout **3D (Beta)** — the hub as a real **shelf of devices**: every Studio app is a device with its icon, pinned apps on the top board. LED green: installed, amber: an update is waiting, blinking blue: busy, dark: not installed. A click starts an installed app (you stay in the room); any other app is shown as its card in the normal window. Choose it in the settings menu (Layout) or in Theme per app. So far Markdown Studio (bookcase) and Agent Studio (server rack) have their own 3D view; the other apps look like Adobe with it until theirs comes.
+
 ## 1.16.0 — 2026-11-05
 - New: four more CLI themes with other accent colors — CLI Amber, CLI Cyan, CLI Magenta and CLI White (black, monospace, square, like CLI (Terminal), just not green). Choose them like the other themes (Settings → Appearance or Settings menu → Theme; in the hub also in Theme per app).
 
