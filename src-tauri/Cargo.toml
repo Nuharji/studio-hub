@@ -1,6 +1,6 @@
 [package]
 name = "studio-hub"
-version = "1.17.0"
+version = "1.18.0"
 description = "Launcher and installer for the Studio apps"
 edition = "2021"
 rust-version = "1.77"
@@ -20,6 +20,12 @@ zip = { version = "2", default-features = false, features = ["deflate"] }
 
 [target.'cfg(windows)'.dependencies]
 winreg = "0.52"
+
+# Dock icon that follows the theme (src/appicon.rs)
+[target.'cfg(target_os = "macos")'.dependencies]
+objc2 = "0.6"
+objc2-foundation = { version = "0.3", default-features = false, features = ["std", "NSData"] }
+objc2-app-kit = { version = "0.3", default-features = false, features = ["std", "NSApplication", "NSImage", "NSResponder"] }
 
 [profile.release]
 codegen-units = 1

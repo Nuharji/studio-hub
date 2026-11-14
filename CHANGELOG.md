@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.18.0 — 2026-11-14
+- New: the app logo follows the theme — the logo in the menu bar, the big tile on the start page and, while the app runs, the icon in the Dock (macOS) and the taskbar / window icon (Windows, Linux). CLI themes: black with the accent color and an edge in it; High contrast: black and white with a yellow edge; Graphite: gray with the logo in the app's color; GitHub and Sand: a light card; GitHub Dark, Midnight and Dusk: tinted with the theme; Light and Rosé: the light tile. Dark keeps the usual icon.
+
 ## 1.17.0 — 2026-11-12
 - New (Beta): layout **3D (Beta)** — the hub as a real **shelf of devices**: every Studio app is a device with its icon, pinned apps on the top board. LED green: installed, amber: an update is waiting, blinking blue: busy, dark: not installed. A click starts an installed app (you stay in the room); any other app is shown as its card in the normal window. Choose it in the settings menu (Layout) or in Theme per app. So far Markdown Studio (bookcase) and Agent Studio (server rack) have their own 3D view; the other apps look like Adobe with it until theirs comes.
 
