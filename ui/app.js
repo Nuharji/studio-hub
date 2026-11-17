@@ -34,7 +34,7 @@ const CATALOG = {
   'Pass Studio': {code: 'Pw', g: ['#1C2B3F', '#5B7FA6'], gl: ['#4A6E96', '#B7CDE6'], repo: 'pass-studio', stage: 'preAlpha',
     en: 'Passwords, secure notes and two-factor codes (TOTP) in one encrypted file — offline, without an account; security check, generator, CSV import.',
     de: 'Passwörter, sichere Notizen und Zwei-Faktor-Codes (TOTP) in einer verschlüsselten Datei — offline, ohne Konto; Sicherheitscheck, Generator, CSV-Import.'},
-  'Agent Studio': {code: 'Ag', g: ['#05505E', '#1EC8DD'], gl: ['#0FB5CB', '#9AEFF9'], repo: 'agent-studio', stage: 'preAlpha',
+  'Agent Studio': {code: 'Ag', g: ['#05505E', '#1EC8DD'], gl: ['#0FB5CB', '#9AEFF9'], repo: 'agent-studio',
     en: 'Build apps with AI: projects with their own rights, tasks, sessions with Claude, build / test commands and git changes. Needs a Claude account.',
     de: 'Apps mit KI bauen: Projekte mit eigenen Rechten, Aufgaben, Sitzungen mit Claude, Build-/Test-Befehlen und Git-Änderungen. Braucht ein Claude-Konto.'},
   'Code Studio': {code: 'Cd', g: ['#5A2A05', '#F58A1F'], gl: ['#EE7A12', '#FFC27E'], repo: 'code-studio', stage: 'preAlpha',
@@ -344,7 +344,7 @@ function moreMenu(name) {
   ];
 }
 function settingsMenu() {
-  const th = [['dark', 'themeDark'], ['light', 'themeLight'], ['github', 'themeGithub'], ['github-dark', 'themeGithubDark'], ['cli', 'themeCli'], ['cli-amber', 'themeCliAmber'], ['cli-cyan', 'themeCliCyan'], ['cli-magenta', 'themeCliMagenta'], ['cli-white', 'themeCliWhite'], ['midnight', 'themeMidnight'], ['dusk', 'themeDusk'], ['graphite', 'themeGraphite'], ['contrast', 'themeContrast'], ['sand', 'themeSand'], ['rose', 'themeRose']];
+  const th = [['dark', 'themeDark'], ['light', 'themeLight'], ['github', 'themeGithub'], ['github-dark', 'themeGithubDark'], ['cli', 'themeCli'], ['cli-amber', 'themeCliAmber'], ['cli-cyan', 'themeCliCyan'], ['cli-magenta', 'themeCliMagenta'], ['cli-white', 'themeCliWhite'], ['midnight', 'themeMidnight'], ['dusk', 'themeDusk'], ['graphite', 'themeGraphite'], ['contrast', 'themeContrast'], ['sand', 'themeSand'], ['rose', 'themeRose'], ['proton', 'themeProton']];
   return [
     {id: 'lang|auto', label: `${t('language')}: ${t('sysLang')}`, checked: settings.lang === 'auto'},
     {id: 'lang|en', label: `${t('language')}: English`, checked: settings.lang === 'en'},
@@ -471,7 +471,7 @@ if (window.Native) {
 const workFolder = () => (window.Shared && Shared.values.workFolder) || '';
 const syncFolder = () => (window.Shared && Shared.values.syncFolder) || '';
 /* Studio Hub → Design pro App: every app (with shared settings) either like the hub or with its own theme / layout. */
-const PER_APP_THEMES = [['dark', 'themeDark'], ['light', 'themeLight'], ['github', 'themeGithub'], ['github-dark', 'themeGithubDark'], ['cli', 'themeCli'], ['cli-amber', 'themeCliAmber'], ['cli-cyan', 'themeCliCyan'], ['cli-magenta', 'themeCliMagenta'], ['cli-white', 'themeCliWhite'], ['midnight', 'themeMidnight'], ['dusk', 'themeDusk'], ['graphite', 'themeGraphite'], ['contrast', 'themeContrast'], ['sand', 'themeSand'], ['rose', 'themeRose']];
+const PER_APP_THEMES = [['dark', 'themeDark'], ['light', 'themeLight'], ['github', 'themeGithub'], ['github-dark', 'themeGithubDark'], ['cli', 'themeCli'], ['cli-amber', 'themeCliAmber'], ['cli-cyan', 'themeCliCyan'], ['cli-magenta', 'themeCliMagenta'], ['cli-white', 'themeCliWhite'], ['midnight', 'themeMidnight'], ['dusk', 'themeDusk'], ['graphite', 'themeGraphite'], ['contrast', 'themeContrast'], ['sand', 'themeSand'], ['rose', 'themeRose'], ['proton', 'themeProton']];
 // The apps that already have a 3D view (layout „3D (Beta)“, room3d.js); the others look like Adobe with it.
 const ROOM_APPS = ['md', 'ag'];
 function perAppBody() {
