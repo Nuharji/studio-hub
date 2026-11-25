@@ -17,10 +17,9 @@ Every app works offline, without an account, in German and English — and Studi
 | [Video Studio](https://github.com/Nuharji/video-studio) | Cut videos: timeline with several tracks, titles, fades and sound; export as MP4 or WebM *(Pre-Alpha)* | [Releases](https://github.com/Nuharji/video-studio/releases) |
 | [Mail Studio](https://github.com/Nuharji/mail-studio) | E-mail for all your accounts (iCloud, Gmail, GMX, WEB.DE, Proton Bridge, any IMAP / SMTP), passwords in the keychain, offline reading *(Pre-Alpha)* | [Releases](https://github.com/Nuharji/mail-studio/releases) |
 | [Pass Studio](https://github.com/Nuharji/pass-studio) | Passwords, secure notes and two-factor codes (TOTP) in one encrypted file — offline, without an account *(Pre-Alpha)* | [Releases](https://github.com/Nuharji/pass-studio/releases) |
+| [Lex Studio](https://github.com/Nuharji/lex-studio) | Pop-up dictionary for translating: Latin, Ancient Greek, English, German, French, Spanish, Russian, Italian, Swedish, Japanese *(Pre-Alpha)* | [Releases](https://github.com/Nuharji/lex-studio/releases) |
 | [Agent Studio](https://github.com/Nuharji/agent-studio) | Build apps with AI: projects with their own rights, tasks, sessions with Claude, build / test commands and git changes *(needs a Claude account)* | [Releases](https://github.com/Nuharji/agent-studio/releases) |
 | [Code Studio](https://github.com/Nuharji/code-studio) | Code editor *(Pre-Alpha, on hold)* | [Releases](https://github.com/Nuharji/code-studio/releases) |
-
-In development (shown in the hub under “In development” until its first release): **Lex Studio** — pop-up dictionary for translating.
 
 - UI: `ui/`, app catalog in `ui/app.js` (`CATALOG`)
 - Native backend: `src-tauri/src/main.rs` (library scan, Windows uninstall registry, silent NSIS install/uninstall)

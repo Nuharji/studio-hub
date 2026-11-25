@@ -34,6 +34,9 @@ const CATALOG = {
   'Pass Studio': {code: 'Pw', g: ['#1C2B3F', '#5B7FA6'], gl: ['#4A6E96', '#B7CDE6'], repo: 'pass-studio', stage: 'preAlpha',
     en: 'Passwords, secure notes and two-factor codes (TOTP) in one encrypted file — offline, without an account; security check, generator, CSV import.',
     de: 'Passwörter, sichere Notizen und Zwei-Faktor-Codes (TOTP) in einer verschlüsselten Datei — offline, ohne Konto; Sicherheitscheck, Generator, CSV-Import.'},
+  'Lex Studio': {code: 'Lx', g: ['#3A2A10', '#C08A2E'], gl: ['#B07A1E', '#F0D08A'], repo: 'lex-studio', stage: 'preAlpha',
+    en: 'Pop-up dictionary for translating: a key combination brings it up at the mouse pointer with the copied word already looked up. Latin, Ancient Greek, English, German, French, Spanish, Russian, Italian, Swedish and Japanese, from Wiktionary; works offline for words you looked up.',
+    de: 'Pop-up-Wörterbuch zum Übersetzen: eine Tastenkombination holt es an den Mauszeiger, das kopierte Wort ist schon nachgeschlagen. Latein, Altgriechisch, Englisch, Deutsch, Französisch, Spanisch, Russisch, Italienisch, Schwedisch und Japanisch, aus Wiktionary; Nachgeschlagenes auch offline.'},
   'Agent Studio': {code: 'Ag', g: ['#05505E', '#1EC8DD'], gl: ['#0FB5CB', '#9AEFF9'], repo: 'agent-studio',
     en: 'Build apps with AI: projects with their own rights, tasks, sessions with Claude, build / test commands and git changes. Needs a Claude account.',
     de: 'Apps mit KI bauen: Projekte mit eigenen Rechten, Aufgaben, Sitzungen mit Claude, Build-/Test-Befehlen und Git-Änderungen. Braucht ein Claude-Konto.'},
@@ -43,11 +46,7 @@ const CATALOG = {
 };
 /* Apps in development (no GitHub release yet): {name, code, g: [from, to], icon?, en, de}.
    They move into CATALOG once their repository has a release. */
-const SOON = [
-  {name: 'Lex Studio', code: 'Lx', g: ['#3A2A10', '#C08A2E'], gl: ['#B07A1E', '#F0D08A'], icon: true,
-    en: 'Pop-up dictionary for translating: a key combination brings it up at the mouse pointer with the copied word already looked up. Latin, Ancient Greek, English, German, French, Spanish, Russian, Italian, Swedish and Japanese, from Wiktionary; works offline for words you looked up.',
-    de: 'Pop-up-Wörterbuch zum Übersetzen: eine Tastenkombination holt es an den Mauszeiger, das kopierte Wort ist schon nachgeschlagen. Latein, Altgriechisch, Englisch, Deutsch, Französisch, Spanisch, Russisch, Italienisch, Schwedisch und Japanisch, aus Wiktionary; Nachgeschlagenes auch offline.'}
-];
+const SOON = [];
 const SELF = 'Studio Hub';
 
 /* The texts (English / German) live in src-tauri/i18n/*.json and are loaded from Rust at start. */
