@@ -41,7 +41,13 @@ const CATALOG = {
     en: 'IDE in the JetBrains style: projects, Search Everywhere, find in files, terminal, local history.',
     de: 'IDE im JetBrains-Stil: Projekte, Überall suchen, In Dateien suchen, Terminal, lokaler Verlauf.'}
 };
-const SOON = [];   // apps in development, e.g. {name, code, g: [from, to], en, de}
+/* Apps in development (no GitHub release yet): {name, code, g: [from, to], icon?, en, de}.
+   They move into CATALOG once their repository has a release. */
+const SOON = [
+  {name: 'Lex Studio', code: 'Lx', g: ['#3A2A10', '#C08A2E'], gl: ['#B07A1E', '#F0D08A'], icon: true,
+    en: 'Pop-up dictionary for translating: a key combination brings it up at the mouse pointer with the copied word already looked up. Latin, Ancient Greek, English, German, French, Spanish, Russian, Italian, Swedish and Japanese, from Wiktionary; works offline for words you looked up.',
+    de: 'Pop-up-Wörterbuch zum Übersetzen: eine Tastenkombination holt es an den Mauszeiger, das kopierte Wort ist schon nachgeschlagen. Latein, Altgriechisch, Englisch, Deutsch, Französisch, Spanisch, Russisch, Italienisch, Schwedisch und Japanisch, aus Wiktionary; Nachgeschlagenes auch offline.'}
+];
 const SELF = 'Studio Hub';
 
 /* The texts (English / German) live in src-tauri/i18n/*.json and are loaded from Rust at start. */
@@ -111,7 +117,7 @@ function stateOf(name) {
 /* ================= Rendering ================= */
 /* The app's own icon (ui/icons/<code>.png, the same picture as the installed app); apps without one get a letter tile. */
 function tile(name, c = CATALOG[name] || {code: name.replace(/[^A-Za-z]/g, '').slice(0, 2), g: ['#555', '#888']}) {
-  if (CATALOG[name]) return `<img class="tile icon" src="icons/${esc(c.code.toLowerCase())}.png" alt="" draggable="false">`;
+  if (CATALOG[name] || c.icon) return `<img class="tile icon" src="icons/${esc(c.code.toLowerCase())}.png" alt="" draggable="false">`;
   const code = c.code.charAt(0).toUpperCase() + c.code.slice(1).toLowerCase();
   // Dark themes show the dark fade, light themes the light fade (same as each app's own logo).
   const g = c.gl && ['light', 'github', 'sand', 'rose'].includes(settings.theme) ? c.gl : c.g;
